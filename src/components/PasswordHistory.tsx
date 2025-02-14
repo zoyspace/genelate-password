@@ -103,8 +103,8 @@ export function PasswordHistory() {
                 transition: { duration: 0.5 },
               }}
             >
-              <div className="flex flex-col space-y-2">
-                <div className="flex justify-between items-center">
+              <div className="flex flex-col ">
+                <div className="flex justify-between items-center pl-4">
                   <span className="text-sm text-muted-foreground">{entry.createdAt}</span>
                   <div className="flex space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => toggleFavorite(entry.id)}>
@@ -115,7 +115,7 @@ export function PasswordHistory() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2 bg-background py-2 px-4 mx-4 rounded">
+                <div className="flex items-center space-x-2 bg-background p-4 rounded">
                   <div className="font-mono text-sm break-all flex-grow">{entry.password}</div>
                   <Button variant="ghost" size="icon" onClick={() => copyToClipboard(entry.id, entry.password)}>
                     <Copy className={`h-4 w-4 ${copiedId === entry.id ? "text-green-500" : ""}`} />
