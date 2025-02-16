@@ -25,7 +25,7 @@ export default function PasswordGeneratorPage() {
 
 	useEffect(() => {
 		setIsClient(true);
-		const storedLength = localStorage.getItem("passwordLength");
+		const storedLength = localStorage.getItem("passwordLength"); //改善する。
 
 		const storedUppercase = localStorage.getItem("includeUppercase");
 		const storedNumbers = localStorage.getItem("includeNumbers");
