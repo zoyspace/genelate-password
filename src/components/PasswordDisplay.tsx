@@ -28,7 +28,6 @@ export default function PasswordDisplay({
   onStateChange,
 }: PasswordDisplayProps) {
   const [key, setKey] = useState(0)
-  const [shake, setShake] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [isIconClicked, setIsIconClicked] = useState(false)
@@ -50,7 +49,6 @@ export default function PasswordDisplay({
   }, [currentPassword])
 
   const handleGeneratePassword = () => {
-    setShake(true)
     setIsPending(true)
     setTimeout(() => {
       setKey((prevKey) => prevKey + 1)
@@ -88,7 +86,6 @@ export default function PasswordDisplay({
         rotateZ: [0, -1, 1, 0],        // Z軸（2D回転）のひねり
         rotateY: [0, 2, -2, 0],        // Y軸（3D奥行き回転）のひねり
       }}
-      onAnimationComplete={() => setShake(false)}
     >
       <div className="password-text flex-grow mr-4 min-h-16 flex items-center overflow-hidden" style={{ perspective:1000}}>
         <AnimatePresence mode="wait">

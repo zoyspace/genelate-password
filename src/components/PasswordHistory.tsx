@@ -24,7 +24,7 @@ interface PasswordEntry {
 
 export function PasswordHistory() {
   const [history, setHistory] = useState<PasswordEntry[]>([])
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  // const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showClearDialog, setShowClearDialog] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -54,12 +54,12 @@ export function PasswordHistory() {
   }
 
   const deleteEntry = (id: string) => {
-    setDeletingId(id)
+    // setDeletingId(id)
     setTimeout(() => {
       const updatedHistory = history.filter((entry) => entry.id !== id)
       setHistory(updatedHistory)
       localStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
-      setDeletingId(null)
+      // setDeletingId(null)
     }, 500)
   }
 
