@@ -10,6 +10,7 @@ import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
 import Link from "next/link";
 
+
 export default function PasswordGeneratorPage() {
 	// biome-ignore format:
 	const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
@@ -20,8 +21,16 @@ export default function PasswordGeneratorPage() {
 	const [includeSymbols, setIncludeSymbols] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
-	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(true);
+	// const [shouldGeneratePassword, setShouldGeneratePassword] = useState(true);
+	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(() => {// localStorage から値を取得し、存在すればパースして使用
+		const storedValue = localStorage.getItem("shouldGeneratePassword");
+		return storedValue !== null ? JSON.parse(storedValue) : true;
+	  });
+	console.log("first shouldGeneratePassword::",shouldGeneratePassword); //改善する。
+
 	const [isClient, setIsClient] = useState(false);
+
+	
 
 	useEffect(() => {
 		setIsClient(true);
@@ -32,7 +41,10 @@ export default function PasswordGeneratorPage() {
 		const storedSymbols = localStorage.getItem("includeSymbols");
 		const storedDarkMode = localStorage.getItem("isDarkMode");
 		const storedCustomSymbols = localStorage.getItem("customSymbols");
-		const storedShouldGenerate = localStorage.getItem("shouldGeneratePassword");
+		// const storedShouldGenerate = localStorage.getItem("shouldGeneratePassword");
+		// console.log("stored1::",storedShouldGenerate); //改善する。
+		console.log("shouldGeneratePassword1::",shouldGeneratePassword); //改善する。
+
 
 		if (storedLength) setLength(Number.parseInt(storedLength, 10));
 		if (storedUppercase) setIncludeUppercase(storedUppercase === "true");
@@ -40,8 +52,10 @@ export default function PasswordGeneratorPage() {
 		if (storedSymbols) setIncludeSymbols(storedSymbols === "true");
 		if (storedDarkMode) setIsDarkMode(storedDarkMode === "true");
 		if (storedCustomSymbols) setCustomSymbols(JSON.parse(storedCustomSymbols));
-		if (storedShouldGenerate)
-			setShouldGeneratePassword(storedShouldGenerate === "true");
+		// if (storedShouldGenerate === "false") setShouldGeneratePassword(false);
+
+		console.log("shouldGeneratePassword::",shouldGeneratePassword); //改善する。
+
 	}, []);
 
 	useEffect(() => {
@@ -51,16 +65,14 @@ export default function PasswordGeneratorPage() {
 	useEffect(() => {
 		if (isClient){
 		localStorage.setItem("passwordLength", length.toString());
-
 		localStorage.setItem("includeUppercase", includeUppercase.toString());
 		localStorage.setItem("includeNumbers", includeNumbers.toString());
 		localStorage.setItem("isDarkMode", isDarkMode.toString());
 		localStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 		localStorage.setItem("includeSymbols", includeSymbols.toString());
-		localStorage.setItem(
-			"shouldGeneratePassword",
-			shouldGeneratePassword.toString(),
-		);
+		localStorage.setItem("shouldGeneratePassword",shouldGeneratePassword.toString());
+		console.log("get shouldGeneratePassword::",shouldGeneratePassword.toString()); //改善する。
+
 		}
 	}, [
 		length,

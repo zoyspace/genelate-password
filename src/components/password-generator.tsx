@@ -40,10 +40,12 @@ export default function PasswordGenerator({
   onPasswordGenerate,
   shouldGeneratePassword,
 }: PasswordGeneratorProps) {
-  const [password, setPassword] = useState<string>("")
+  const displayedPassword = localStorage.getItem("currentPassword") ?? "";
+  const [password, setPassword] = useState<string>(displayedPassword)
 
   useEffect(() => {
     const fetchPassword = async () => {
+      console.log("in generator shouldGeneratePassword::",shouldGeneratePassword);
       if (shouldGeneratePassword) {
         const newPassword =  generatePassword(
           length,
