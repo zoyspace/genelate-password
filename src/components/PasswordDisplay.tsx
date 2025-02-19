@@ -27,7 +27,6 @@ export default function PasswordDisplay({
   shouldGeneratePassword,
   onStateChange,
 }: PasswordDisplayProps) {
-  console.log("displaypassword::",shouldGeneratePassword);
   const [key, setKey] = useState(0)
   const [isPending, setIsPending] = useState(false)
   const [isCopied, setIsCopied] = useState(false)

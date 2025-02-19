@@ -45,7 +45,6 @@ export default function PasswordGenerator({
 
   useEffect(() => {
     const fetchPassword = async () => {
-      console.log("in generator shouldGeneratePassword::",shouldGeneratePassword);
       if (shouldGeneratePassword) {
         const newPassword =  generatePassword(
           length,
