@@ -40,7 +40,7 @@ export default function PasswordGenerator({
   onPasswordGenerate,
   shouldGeneratePassword,
 }: PasswordGeneratorProps) {
-  const displayedPassword = localStorage.getItem("currentPassword") ?? "";
+  const displayedPassword = sessionStorage.getItem("currentPassword") ?? "";
   const [password, setPassword] = useState<string>(displayedPassword)
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function PasswordGenerator({
         )
         setPassword(newPassword)
         onPasswordGenerate(newPassword)
-        localStorage.setItem("currentPassword", newPassword)
+        sessionStorage.setItem("currentPassword", newPassword)
       }
     }
     fetchPassword()

@@ -42,10 +42,10 @@ export default function PasswordDisplay({
         createdAt: new Date().toLocaleString(),
         isFavorite: false,
       }
-      const storedHistory = localStorage.getItem("passwordHistory")
+      const storedHistory = sessionStorage.getItem("passwordHistory")
       const history = storedHistory ? JSON.parse(storedHistory) : []
       history.unshift(newEntry)
-      localStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
+      sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
     }
   }, [currentPassword])
 

@@ -22,8 +22,8 @@ export default function PasswordGeneratorPage() {
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	// const [shouldGeneratePassword, setShouldGeneratePassword] = useState(true);
-	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(() => {// localStorage から値を取得し、存在すればパースして使用
-		const storedValue = localStorage.getItem("shouldGeneratePassword");
+	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(() => {// sessionStorage から値を取得し、存在すればパースして使用
+		const storedValue = sessionStorage.getItem("shouldGeneratePassword");
 		return storedValue !== null ? JSON.parse(storedValue) : true;
 	  });
 	console.log("first shouldGeneratePassword::",shouldGeneratePassword); //改善する。
@@ -34,14 +34,14 @@ export default function PasswordGeneratorPage() {
 
 	useEffect(() => {
 		setIsClient(true);
-		const storedLength = localStorage.getItem("passwordLength"); //改善する。
+		const storedLength = sessionStorage.getItem("passwordLength"); //改善する。
 
-		const storedUppercase = localStorage.getItem("includeUppercase");
-		const storedNumbers = localStorage.getItem("includeNumbers");
-		const storedSymbols = localStorage.getItem("includeSymbols");
-		const storedDarkMode = localStorage.getItem("isDarkMode");
-		const storedCustomSymbols = localStorage.getItem("customSymbols");
-		// const storedShouldGenerate = localStorage.getItem("shouldGeneratePassword");
+		const storedUppercase = sessionStorage.getItem("includeUppercase");
+		const storedNumbers = sessionStorage.getItem("includeNumbers");
+		const storedSymbols = sessionStorage.getItem("includeSymbols");
+		const storedDarkMode = sessionStorage.getItem("isDarkMode");
+		const storedCustomSymbols = sessionStorage.getItem("customSymbols");
+		// const storedShouldGenerate = sessionStorage.getItem("shouldGeneratePassword");
 		// console.log("stored1::",storedShouldGenerate); //改善する。
 		console.log("shouldGeneratePassword1::",shouldGeneratePassword); //改善する。
 
@@ -64,13 +64,13 @@ export default function PasswordGeneratorPage() {
 	  
 	useEffect(() => {
 		if (isClient){
-		localStorage.setItem("passwordLength", length.toString());
-		localStorage.setItem("includeUppercase", includeUppercase.toString());
-		localStorage.setItem("includeNumbers", includeNumbers.toString());
-		localStorage.setItem("isDarkMode", isDarkMode.toString());
-		localStorage.setItem("customSymbols", JSON.stringify(customSymbols));
-		localStorage.setItem("includeSymbols", includeSymbols.toString());
-		localStorage.setItem("shouldGeneratePassword",shouldGeneratePassword.toString());
+		sessionStorage.setItem("passwordLength", length.toString());
+		sessionStorage.setItem("includeUppercase", includeUppercase.toString());
+		sessionStorage.setItem("includeNumbers", includeNumbers.toString());
+		sessionStorage.setItem("isDarkMode", isDarkMode.toString());
+		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
+		sessionStorage.setItem("includeSymbols", includeSymbols.toString());
+		sessionStorage.setItem("shouldGeneratePassword",shouldGeneratePassword.toString());
 		console.log("get shouldGeneratePassword::",shouldGeneratePassword.toString()); //改善する。
 
 		}

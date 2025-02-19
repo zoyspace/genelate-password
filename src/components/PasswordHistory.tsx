@@ -33,7 +33,7 @@ export function PasswordHistory() {
   }, [])
 
   const loadHistory = () => {
-    const storedHistory = localStorage.getItem("passwordHistory")
+    const storedHistory = sessionStorage.getItem("passwordHistory")
     if (storedHistory) {
       const parsedHistory :PasswordEntry[] = JSON.parse(storedHistory)
       const updatedHistory = parsedHistory.map((entry) => ({
@@ -42,14 +42,14 @@ export function PasswordHistory() {
         isFavorite: entry.isFavorite || false,
       }))
       setHistory(updatedHistory)
-      localStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+      sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
     }
   }
 
   const clearHistory = () => {
     const updatedHistory = history.filter((entry) => entry.isFavorite)
     setHistory(updatedHistory)
-    localStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+    sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
     setShowClearDialog(false)
   }
 
@@ -58,7 +58,7 @@ export function PasswordHistory() {
     setTimeout(() => {
       const updatedHistory = history.filter((entry) => entry.id !== id)
       setHistory(updatedHistory)
-      localStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+      sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
       // setDeletingId(null)
     }, 500)
   }
@@ -68,7 +68,7 @@ export function PasswordHistory() {
       entry.id === id ? { ...entry, isFavorite: !entry.isFavorite } : entry,
     )
     setHistory(updatedHistory)
-    localStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+    sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
   }
 
   const copyToClipboard = (id: string, password: string) => {

@@ -15,7 +15,7 @@ export default function HistoryPage() {
   }, [])
 
   const handleBackToGenerator = () => {
-    localStorage.setItem("shouldGeneratePassword", "false")
+    sessionStorage.setItem("shouldGeneratePassword", "false")
   }
 
   return (
