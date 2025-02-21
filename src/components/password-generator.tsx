@@ -40,9 +40,15 @@ export default function PasswordGenerator({
   onPasswordGenerate,
   shouldGeneratePassword,
 }: PasswordGeneratorProps) {
-  const displayedPassword = sessionStorage.getItem("currentPassword") ?? "";
-  const [password, setPassword] = useState<string>(displayedPassword)
-
+  const [password, setPassword] = useState<string>("")
+  
+  
+  useEffect(() => {
+    const displayedPassword = sessionStorage.getItem("currentPassword") ?? "";
+    if (displayedPassword) {
+      setPassword(displayedPassword)
+    }
+  }, [])
   useEffect(() => {
     const fetchPassword = async () => {
       if (shouldGeneratePassword) {

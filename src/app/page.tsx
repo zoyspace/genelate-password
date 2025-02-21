@@ -10,68 +10,51 @@ import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
 import Link from "next/link";
 
-
 export default function PasswordGeneratorPage() {
 	// biome-ignore format:
 	const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
-
-	
-	const [length, setLength] = useState(() => {
-		const storedValue = sessionStorage.getItem("passwordLength");
-		return storedValue !== null ? Number.parseInt(storedValue, 10) : 12;
-	});
-	
-	const [includeUppercase, setIncludeUppercase] = useState(() => {
-		const storedValue = sessionStorage.getItem("includeUppercase");
-		return storedValue !== null ? JSON.parse(storedValue) : true;
-	});
-	
-	const [includeNumbers, setIncludeNumbers] = useState(() => {
-		const storedValue = sessionStorage.getItem("includeNumbers");
-		return storedValue !== null ? JSON.parse(storedValue) : true;
-	});
-	
-	const [includeSymbols, setIncludeSymbols] = useState(() => {
-		const storedValue = sessionStorage.getItem("includeSymbols");
-		return storedValue !== null ? JSON.parse(storedValue) : false;
-	});
-	
-	const [isDarkMode, setIsDarkMode] = useState(() => {
-		const storedValue = sessionStorage.getItem("isDarkMode");
-		return storedValue !== null ? JSON.parse(storedValue) : false;
-	});
-	
-	const [customSymbols, setCustomSymbols] = useState<string[]>(() => {
-		const storedValue = sessionStorage.getItem("customSymbols");
-		return storedValue !== null ? JSON.parse(storedValue) : DEFAULT_SYMBOLS;
-	});
-	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(() => {// sessionStorage から値を取得し、存在すればパースして使用
-		const storedValue = sessionStorage.getItem("shouldGeneratePassword");
-		return storedValue !== null ? JSON.parse(storedValue) : true;
-	  });
-	
-
+	const [length, setLength] = useState(12);
+	const [includeUppercase, setIncludeUppercase] = useState(true);
+	const [includeNumbers, setIncludeNumbers] = useState(true);
+	const [includeSymbols, setIncludeSymbols] = useState(false);
+	const [isDarkMode, setIsDarkMode] = useState(false);
+	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
+	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(false);
 	const [isClient, setIsClient] = useState(false);
 
-	
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const storedLength = sessionStorage.getItem("passwordLength");
+			const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
+			const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
+			const storedIncludeSymbols = sessionStorage.getItem("includeSymbols");
+			const storedIsDarkMode = sessionStorage.getItem("isDarkMode");
+			const storedCustomSymbols = sessionStorage.getItem("customSymbols");
+			const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
 
-	
+			setLength(storedLength !== null ? Number.parseInt(storedLength, 10) : 12);
+			setIncludeUppercase(storedIncludeUppercase !== null ? JSON.parse(storedIncludeUppercase) : true);
+			setIncludeNumbers(storedIncludeNumbers !== null ? JSON.parse(storedIncludeNumbers) : true);
+			setIncludeSymbols(storedIncludeSymbols !== null ? JSON.parse(storedIncludeSymbols) : false);
+			setIsDarkMode(storedIsDarkMode !== null ? JSON.parse(storedIsDarkMode) : false);
+			setCustomSymbols(storedCustomSymbols !== null ? JSON.parse(storedCustomSymbols) : DEFAULT_SYMBOLS);
+			setShouldGeneratePassword(storedShouldGeneratePassword !== null ? JSON.parse(storedShouldGeneratePassword) : false);
+		}
+	}, [isClient]);
 
 	useEffect(() => {
 		setIsClient(true);
-	  }, []);
-	  
-	useEffect(() => {
-		if (isClient){
-		sessionStorage.setItem("passwordLength", length.toString());
-		sessionStorage.setItem("includeUppercase", includeUppercase.toString());
-		sessionStorage.setItem("includeNumbers", includeNumbers.toString());
-		sessionStorage.setItem("isDarkMode", isDarkMode.toString());
-		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
-		sessionStorage.setItem("includeSymbols", includeSymbols.toString());
-		sessionStorage.setItem("shouldGeneratePassword",shouldGeneratePassword.toString());
-		
+	}, []);
 
+	useEffect(() => {
+		if (isClient) {
+			sessionStorage.setItem("passwordLength", length.toString());
+			sessionStorage.setItem("includeUppercase", includeUppercase.toString());
+			sessionStorage.setItem("includeNumbers", includeNumbers.toString());
+			sessionStorage.setItem("isDarkMode", isDarkMode.toString());
+			sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
+			sessionStorage.setItem("includeSymbols", includeSymbols.toString());
+			sessionStorage.setItem("shouldGeneratePassword", shouldGeneratePassword.toString());
 		}
 	}, [
 		length,
@@ -81,20 +64,22 @@ export default function PasswordGeneratorPage() {
 		customSymbols,
 		includeSymbols,
 		shouldGeneratePassword,
-		isClient
+		isClient,
 	]);
 
-	useEffect(() => {
-		document.documentElement.classList.toggle("dark", isDarkMode);
-	}, [isDarkMode]);
-
 	const toggleDarkMode = () => {
-		setIsDarkMode((prev: boolean) => !prev);
+		setIsDarkMode((prev: boolean) => {
+			const newMode = !prev;
+			document.documentElement.classList.toggle("dark", newMode);
+			return newMode;
+		});
 	};
 
 	const handleStateChange = useCallback(() => {
+		if (!shouldGeneratePassword) return; // shouldGeneratePassword が false の場合は何もしない
+
 		setShouldGeneratePassword(true);
-	}, []);
+	}, [shouldGeneratePassword]);
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
