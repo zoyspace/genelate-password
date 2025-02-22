@@ -20,10 +20,10 @@ export default function PasswordGeneratorPage() {
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(false);
+	
 	const [isClient, setIsClient] = useState(false);
 
 	useEffect(() => {
-		if (typeof window !== "undefined") {
 			const storedLength = sessionStorage.getItem("passwordLength");
 			const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
 			const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
@@ -39,8 +39,8 @@ export default function PasswordGeneratorPage() {
 			setIsDarkMode(storedIsDarkMode !== null ? JSON.parse(storedIsDarkMode) : false);
 			setCustomSymbols(storedCustomSymbols !== null ? JSON.parse(storedCustomSymbols) : DEFAULT_SYMBOLS);
 			setShouldGeneratePassword(storedShouldGeneratePassword !== null ? JSON.parse(storedShouldGeneratePassword) : false);
-		}
-	}, [isClient]);
+		
+	}, []);
 
 	useEffect(() => {
 		setIsClient(true);
