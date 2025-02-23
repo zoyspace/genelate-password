@@ -19,7 +19,8 @@ export default function PasswordGeneratorPage() {
 	const [includeSymbols, setIncludeSymbols] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
-	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(false);
+	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(true);
+	const [password, setPassword] = useState<string>("");
 	
 	const [isClient, setIsClient] = useState(false);
 
@@ -74,9 +75,45 @@ export default function PasswordGeneratorPage() {
 			return newMode;
 		});
 	};
+	useEffect(() => {
+		const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
+		if (storedShouldGeneratePassword === "false") {
+			const storedPass = "password"
+			setPassword(storedPass)
+		}else{
+			generatePass();
+
+		}
+	}, []);
+
+	const generatePass = () => {
+		let charset = 'abcdefghijklmnopqrstuvwxyz'
+		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+		if (includeNumbers) charset += '0123456789'
+		if (includeSymbols) charset += customSymbols.join('')
+	  
+		let newPassword = ''
+		for (let i = 0; i < length; i++) {
+		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length))
+		}
+	  
+		setPassword(newPassword);
+
+		const newEntry = {
+			id: crypto.randomUUID(),
+			password: newPassword,
+			createdAt: new Date().toLocaleString(),
+			isFavorite: false,
+		  }
+		const storedHistory = sessionStorage.getItem("passwordHistory")
+      	const history = storedHistory ? JSON.parse(storedHistory) : []
+      	history.unshift(newEntry)
+      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
+	}
 
 	const handleStateChange = useCallback(() => {
 		if (!shouldGeneratePassword) return; // shouldGeneratePassword が false の場合は何もしない
+		//  generatePass();
 
 		setShouldGeneratePassword(true);
 	}, [shouldGeneratePassword]);
@@ -107,13 +144,9 @@ export default function PasswordGeneratorPage() {
 					</div>
 					<div className="space-y-4">
 						<PasswordDisplay
-							length={length}
-							includeUppercase={includeUppercase}
-							includeNumbers={includeNumbers}
-							includeSymbols={includeSymbols}
-							isDarkMode={isDarkMode}
-							customSymbols={customSymbols}
-							shouldGeneratePassword={shouldGeneratePassword}
+							password	={password}
+							generatePass={generatePass} 
+							isDarkMode ={isDarkMode}
 							onStateChange={handleStateChange}
 						/>
 						<div>
@@ -125,7 +158,8 @@ export default function PasswordGeneratorPage() {
 								value={[length]}
 								onValueChange={(value) => {
 									setLength(value[0]);
-									setShouldGeneratePassword(true);
+									generatePass();
+
 								}}
 								max={32}
 								min={8}
@@ -138,7 +172,7 @@ export default function PasswordGeneratorPage() {
 								checked={includeUppercase}
 								onCheckedChange={(checked) => {
 									setIncludeUppercase(checked);
-									setShouldGeneratePassword(true);
+									generatePass();
 								}}
 							/>
 						</div>
@@ -148,7 +182,7 @@ export default function PasswordGeneratorPage() {
 								checked={includeNumbers}
 								onCheckedChange={(checked) => {
 									setIncludeNumbers(checked);
-									setShouldGeneratePassword(true);
+									generatePass();
 								}}
 							/>
 						</div>
@@ -158,7 +192,7 @@ export default function PasswordGeneratorPage() {
 								checked={includeSymbols}
 								onCheckedChange={(checked) => {
 									setIncludeSymbols(checked);
-									setShouldGeneratePassword(true);
+									generatePass();
 								}}
 							/>
 						</div>
@@ -171,6 +205,7 @@ export default function PasswordGeneratorPage() {
 								onSymbolsChange={(symbols) => {
 									setCustomSymbols(symbols);
 									setShouldGeneratePassword(true);
+									generatePass();
 								}}
 								disabled={!includeSymbols}
 							/>

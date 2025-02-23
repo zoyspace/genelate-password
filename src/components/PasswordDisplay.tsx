@@ -4,27 +4,18 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Copy, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import PasswordGenerator from "@/components/password-generator"
 
 interface PasswordDisplayProps {
-  length: number
-  includeUppercase: boolean
-  includeNumbers: boolean
-  includeSymbols: boolean
+  password: string
+  generatePass: () => void // ここに generatePass プロパティを追加
   isDarkMode: boolean
-  customSymbols: string[]
-  shouldGeneratePassword: boolean
   onStateChange: () => void
 }
 
 export default function PasswordDisplay({
-  length,
-  includeUppercase,
-  includeNumbers,
-  includeSymbols,
+  password: displayedPassword,
+  generatePass,
   isDarkMode,
-  customSymbols,
-  shouldGeneratePassword,
   onStateChange,
 }: PasswordDisplayProps) {
   const [key, setKey] = useState(0)
@@ -107,7 +98,9 @@ export default function PasswordDisplay({
               exit={{ opacity: 0 }}
               className="w-full break-all text-lg"
             >
-              <PasswordGenerator
+              <span className="font-mono">{displayedPassword}</span>
+            
+              {/* <PasswordGenerator
                 length={length}
                 includeUppercase={includeUppercase}
                 includeNumbers={includeNumbers}
@@ -115,7 +108,7 @@ export default function PasswordDisplay({
                 customSymbols={customSymbols}
                 onPasswordGenerate={setCurrentPassword}
                 shouldGeneratePassword={shouldGeneratePassword}
-              />
+              /> */}
             </motion.div>
           )}
         </AnimatePresence>
@@ -125,7 +118,7 @@ export default function PasswordDisplay({
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleGeneratePassword}
+            onClick={generatePass}
             disabled={isPending}
             className="hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
           >
