@@ -77,9 +77,12 @@ export default function PasswordGeneratorPage() {
 	};
 	useEffect(() => {
 		const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
+		
 		if (storedShouldGeneratePassword === "false") {
-			const storedPass = "password"
-			setPassword(storedPass)
+			const storedHistory = sessionStorage.getItem("passwordHistory");
+			const history = storedHistory ? JSON.parse(storedHistory) : [];
+			const latestHIstory = history.length > 0 ? history[0] : "password"
+			setPassword(latestHIstory.password);
 		}else{
 			generatePass();
 
