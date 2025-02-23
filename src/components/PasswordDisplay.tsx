@@ -9,14 +9,12 @@ interface PasswordDisplayProps {
   password: string
   generatePass: () => void // ここに generatePass プロパティを追加
   isDarkMode: boolean
-  onStateChange: () => void
 }
 
 export default function PasswordDisplay({
   password: displayedPassword,
   generatePass,
   isDarkMode,
-  onStateChange,
 }: PasswordDisplayProps) {
   const [key, setKey] = useState(0)
   const [isPending, setIsPending] = useState(false)
@@ -44,7 +42,6 @@ export default function PasswordDisplay({
     setTimeout(() => {
       setKey((prevKey) => prevKey + 1)
       setIsPending(false)
-      onStateChange()
     }, 1200)
   }
 

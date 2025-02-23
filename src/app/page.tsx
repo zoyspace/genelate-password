@@ -19,7 +19,6 @@ export default function PasswordGeneratorPage() {
 	const [includeSymbols, setIncludeSymbols] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
-	const [shouldGeneratePassword, setShouldGeneratePassword] = useState(true);
 	const [password, setPassword] = useState<string>("");
 	
 	const [isClient, setIsClient] = useState(false);
@@ -31,7 +30,6 @@ export default function PasswordGeneratorPage() {
 			const storedIncludeSymbols = sessionStorage.getItem("includeSymbols");
 			const storedIsDarkMode = sessionStorage.getItem("isDarkMode");
 			const storedCustomSymbols = sessionStorage.getItem("customSymbols");
-			const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
 
 			setLength(storedLength !== null ? Number.parseInt(storedLength, 10) : 12);
 			setIncludeUppercase(storedIncludeUppercase !== null ? JSON.parse(storedIncludeUppercase) : true);
@@ -39,7 +37,6 @@ export default function PasswordGeneratorPage() {
 			setIncludeSymbols(storedIncludeSymbols !== null ? JSON.parse(storedIncludeSymbols) : false);
 			setIsDarkMode(storedIsDarkMode !== null ? JSON.parse(storedIsDarkMode) : false);
 			setCustomSymbols(storedCustomSymbols !== null ? JSON.parse(storedCustomSymbols) : DEFAULT_SYMBOLS);
-			setShouldGeneratePassword(storedShouldGeneratePassword !== null ? JSON.parse(storedShouldGeneratePassword) : false);
 		
 	}, []);
 
@@ -55,7 +52,6 @@ export default function PasswordGeneratorPage() {
 			sessionStorage.setItem("isDarkMode", isDarkMode.toString());
 			sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 			sessionStorage.setItem("includeSymbols", includeSymbols.toString());
-			sessionStorage.setItem("shouldGeneratePassword", shouldGeneratePassword.toString());
 		}
 	}, [
 		length,
@@ -64,7 +60,6 @@ export default function PasswordGeneratorPage() {
 		isDarkMode,
 		customSymbols,
 		includeSymbols,
-		shouldGeneratePassword,
 		isClient,
 	]);
 
@@ -114,12 +109,6 @@ export default function PasswordGeneratorPage() {
       	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
 	}
 
-	const handleStateChange = useCallback(() => {
-		if (!shouldGeneratePassword) return; // shouldGeneratePassword が false の場合は何もしない
-		//  generatePass();
-
-		setShouldGeneratePassword(true);
-	}, [shouldGeneratePassword]);
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
@@ -150,7 +139,6 @@ export default function PasswordGeneratorPage() {
 							password	={password}
 							generatePass={generatePass} 
 							isDarkMode ={isDarkMode}
-							onStateChange={handleStateChange}
 						/>
 						<div>
 							<label htmlFor="password-length-slider" className="block mb-2">
@@ -207,7 +195,6 @@ export default function PasswordGeneratorPage() {
 								selectedSymbols={customSymbols}
 								onSymbolsChange={(symbols) => {
 									setCustomSymbols(symbols);
-									setShouldGeneratePassword(true);
 									generatePass();
 								}}
 								disabled={!includeSymbols}
