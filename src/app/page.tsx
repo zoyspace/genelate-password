@@ -52,6 +52,9 @@ export default function PasswordGeneratorPage() {
 			sessionStorage.setItem("isDarkMode", isDarkMode.toString());
 			sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 			sessionStorage.setItem("includeSymbols", includeSymbols.toString());
+
+			handleGeneratePassword();
+			sessionStorage.setItem("shouldGeneratePassword", "true")
 		}
 	}, [
 		length,
@@ -64,15 +67,20 @@ export default function PasswordGeneratorPage() {
 	]);
 
 	const toggleDarkMode = () => {
+		sessionStorage.setItem("shouldGeneratePassword", "false");
 		setIsDarkMode((prev: boolean) => {
 			const newMode = !prev;
 			document.documentElement.classList.toggle("dark", newMode);
 			return newMode;
 		});
 	};
+
 	useEffect(() => {
+		handleGeneratePassword();
+	}, []);
+
+	const handleGeneratePassword = () => {
 		const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
-		
 		if (storedShouldGeneratePassword === "false") {
 			const storedHistory = sessionStorage.getItem("passwordHistory");
 			const history = storedHistory ? JSON.parse(storedHistory) : [];
@@ -80,10 +88,9 @@ export default function PasswordGeneratorPage() {
 			setPassword(latestHIstory.password);
 		}else{
 			generatePass();
-
 		}
-	}, []);
-
+	}
+	
 	const generatePass = () => {
 		let charset = 'abcdefghijklmnopqrstuvwxyz'
 		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -149,7 +156,7 @@ export default function PasswordGeneratorPage() {
 								value={[length]}
 								onValueChange={(value) => {
 									setLength(value[0]);
-									generatePass();
+							
 
 								}}
 								max={32}
@@ -163,7 +170,7 @@ export default function PasswordGeneratorPage() {
 								checked={includeUppercase}
 								onCheckedChange={(checked) => {
 									setIncludeUppercase(checked);
-									generatePass();
+
 								}}
 							/>
 						</div>
@@ -173,7 +180,6 @@ export default function PasswordGeneratorPage() {
 								checked={includeNumbers}
 								onCheckedChange={(checked) => {
 									setIncludeNumbers(checked);
-									generatePass();
 								}}
 							/>
 						</div>
@@ -183,7 +189,6 @@ export default function PasswordGeneratorPage() {
 								checked={includeSymbols}
 								onCheckedChange={(checked) => {
 									setIncludeSymbols(checked);
-									generatePass();
 								}}
 							/>
 						</div>
@@ -195,7 +200,6 @@ export default function PasswordGeneratorPage() {
 								selectedSymbols={customSymbols}
 								onSymbolsChange={(symbols) => {
 									setCustomSymbols(symbols);
-									generatePass();
 								}}
 								disabled={!includeSymbols}
 							/>
