@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import {  useState  } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Copy, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,9 @@ export default function PasswordDisplay({
   const [isIconClicked, setIsIconClicked] = useState(false)
   // const [currentPassword, setCurrentPassword] = useState<string>("")
 
-
+  // useEffect(() => {
+  //   console.log("useEffect")
+  // }, [])
   // const handleGeneratePassword = () => {
   //   setIsPending(true)
   //   setTimeout(() => {
