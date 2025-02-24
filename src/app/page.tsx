@@ -75,9 +75,9 @@ export default function PasswordGeneratorPage() {
 		});
 	};
 
-	useEffect(() => {
-		handleGeneratePassword();
-	}, []);
+	// useEffect(() => {
+	// 	handleGeneratePassword();
+	// }, []);
 
 	const handleGeneratePassword = () => {
 		const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");

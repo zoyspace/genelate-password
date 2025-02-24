@@ -24,7 +24,7 @@ export default function HistoryPage() {
     >
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <div
-          className={`w-[448px] p-8 pb-48 rounded-xl shadow-2xl ${
+          className={`w-[448px] p-4 pb-28 rounded-xl shadow-2xl ${
             isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
           } transition-colors duration-500`}
         >

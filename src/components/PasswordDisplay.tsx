@@ -2,7 +2,7 @@
 
 import {  useState  } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Copy, RefreshCw } from "lucide-react"
+import { RefreshCw,Copy  } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PasswordDisplayProps {
@@ -16,22 +16,9 @@ export default function PasswordDisplay({
   generatePass,
   isDarkMode,
 }: PasswordDisplayProps) {
-  // const [key, setKey] = useState(0)
-  // const [isPending, setIsPending] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [isIconClicked, setIsIconClicked] = useState(false)
-  // const [currentPassword, setCurrentPassword] = useState<string>("")
 
-  // useEffect(() => {
-  //   console.log("useEffect")
-  // }, [])
-  // const handleGeneratePassword = () => {
-  //   setIsPending(true)
-  //   setTimeout(() => {
-  //     setKey((prevKey) => prevKey + 1)
-  //     setIsPending(false)
-  //   }, 1200)
-  // }
 
   const copyToClipboard = () => {
     const passwordElement = document.querySelector(".password-text")
@@ -65,19 +52,8 @@ export default function PasswordDisplay({
     >
       <div className="password-text flex-grow mr-4 min-h-16 flex items-center overflow-hidden" style={{ perspective:1000}}>
         <AnimatePresence mode="wait">
-          {/* {isPending ? (
+
             <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full text-center"
-            >
-              生成中...
-            </motion.div>
-          ) : ( */}
-            <motion.div
-              // key={`password-${key}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -86,7 +62,7 @@ export default function PasswordDisplay({
               <span className="font-mono">{displayedPassword}</span>
             
             </motion.div>
-          {/* )} */}
+      
         </AnimatePresence>
       </div>
       <div className="flex space-x-2">
