@@ -22,20 +22,6 @@ export default function PasswordDisplay({
   const [isIconClicked, setIsIconClicked] = useState(false)
   // const [currentPassword, setCurrentPassword] = useState<string>("")
 
-  // useEffect(() => {
-  //   if (currentPassword) {
-  //     const newEntry = {
-  //       id: crypto.randomUUID(),
-  //       password: currentPassword,
-  //       createdAt: new Date().toLocaleString(),
-  //       isFavorite: false,
-  //     }
-  //     const storedHistory = sessionStorage.getItem("passwordHistory")
-  //     const history = storedHistory ? JSON.parse(storedHistory) : []
-  //     history.unshift(newEntry)
-  //     sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
-  //   }
-  // }, [currentPassword])
 
   // const handleGeneratePassword = () => {
   //   setIsPending(true)
