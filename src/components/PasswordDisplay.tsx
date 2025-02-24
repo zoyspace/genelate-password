@@ -16,34 +16,34 @@ export default function PasswordDisplay({
   generatePass,
   isDarkMode,
 }: PasswordDisplayProps) {
-  const [key, setKey] = useState(0)
-  const [isPending, setIsPending] = useState(false)
+  // const [key, setKey] = useState(0)
+  // const [isPending, setIsPending] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [isIconClicked, setIsIconClicked] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState<string>("")
+  // const [currentPassword, setCurrentPassword] = useState<string>("")
 
-  useEffect(() => {
-    if (currentPassword) {
-      const newEntry = {
-        id: crypto.randomUUID(),
-        password: currentPassword,
-        createdAt: new Date().toLocaleString(),
-        isFavorite: false,
-      }
-      const storedHistory = sessionStorage.getItem("passwordHistory")
-      const history = storedHistory ? JSON.parse(storedHistory) : []
-      history.unshift(newEntry)
-      sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
-    }
-  }, [currentPassword])
+  // useEffect(() => {
+  //   if (currentPassword) {
+  //     const newEntry = {
+  //       id: crypto.randomUUID(),
+  //       password: currentPassword,
+  //       createdAt: new Date().toLocaleString(),
+  //       isFavorite: false,
+  //     }
+  //     const storedHistory = sessionStorage.getItem("passwordHistory")
+  //     const history = storedHistory ? JSON.parse(storedHistory) : []
+  //     history.unshift(newEntry)
+  //     sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
+  //   }
+  // }, [currentPassword])
 
-  const handleGeneratePassword = () => {
-    setIsPending(true)
-    setTimeout(() => {
-      setKey((prevKey) => prevKey + 1)
-      setIsPending(false)
-    }, 1200)
-  }
+  // const handleGeneratePassword = () => {
+  //   setIsPending(true)
+  //   setTimeout(() => {
+  //     setKey((prevKey) => prevKey + 1)
+  //     setIsPending(false)
+  //   }, 1200)
+  // }
 
   const copyToClipboard = () => {
     const passwordElement = document.querySelector(".password-text")
@@ -77,7 +77,7 @@ export default function PasswordDisplay({
     >
       <div className="password-text flex-grow mr-4 min-h-16 flex items-center overflow-hidden" style={{ perspective:1000}}>
         <AnimatePresence mode="wait">
-          {isPending ? (
+          {/* {isPending ? (
             <motion.div
               key="loading"
               initial={{ opacity: 0 }}
@@ -87,9 +87,9 @@ export default function PasswordDisplay({
             >
               生成中...
             </motion.div>
-          ) : (
+          ) : ( */}
             <motion.div
-              key={`password-${key}`}
+              // key={`password-${key}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -97,17 +97,8 @@ export default function PasswordDisplay({
             >
               <span className="font-mono">{displayedPassword}</span>
             
-              {/* <PasswordGenerator
-                length={length}
-                includeUppercase={includeUppercase}
-                includeNumbers={includeNumbers}
-                includeSymbols={includeSymbols}
-                customSymbols={customSymbols}
-                onPasswordGenerate={setCurrentPassword}
-                shouldGeneratePassword={shouldGeneratePassword}
-              /> */}
             </motion.div>
-          )}
+          {/* )} */}
         </AnimatePresence>
       </div>
       <div className="flex space-x-2">
@@ -116,11 +107,11 @@ export default function PasswordDisplay({
             variant="ghost"
             size="icon"
             onClick={generatePass}
-            disabled={isPending}
+            // disabled={isPending}
             className="hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
           >
             <RefreshCw
-              className={`h-4 w-4 ${isPending ? "animate-spin" : ""} group-hover:text-primary transition-colors duration-200`}
+              className="h-4 w-4  group-hover:text-primary transition-colors duration-200"
             />
           </Button>
         </motion.div>
@@ -137,7 +128,7 @@ export default function PasswordDisplay({
             variant="ghost"
             size="icon"
             onClick={copyToClipboard}
-            disabled={isPending}
+            // disabled={isPending}
             className="hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
           >
             <Copy
