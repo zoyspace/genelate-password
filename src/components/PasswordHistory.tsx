@@ -80,10 +80,10 @@ export function PasswordHistory() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
-        <Button variant="outline" onClick={loadHistory}>
+        {/* <Button variant="outline" onClick={loadHistory}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Refresh
-        </Button>
+        </Button> */}
         <Button variant="destructive" onClick={() => setShowClearDialog(true)}>
           Clear History
         </Button>

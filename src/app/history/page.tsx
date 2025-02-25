@@ -20,16 +20,16 @@ export default function HistoryPage() {
 
   return (
     <div
-      className={`min-h-screen flex  flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-gray-900 to-gray-800" : "from-blue-100 to-purple-100"} transition-colors duration-500`}
+      className={`w-full min-h-screen flex  flex-col items-center  bg-gradient-to-br ${isDarkMode ? "from-gray-900 to-gray-800" : "from-blue-100 to-purple-100"} transition-colors duration-500`}
     >
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <div
-          className={`w-[448px] p-4 pb-28 rounded-xl shadow-2xl ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-          } transition-colors duration-500`}
-        >
+      <div
+  className={`w-full max-w-md p-4 pt-8  pb-28 rounded-xl shadow-2xl ${
+    isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+  } transition-colors duration-500`}
+>
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Password History</h1>
+            <h1 className="text-3xl font-bold mr-12">Password History</h1>
             <Link href="/" onClick={handleBackToGenerator}>
               <Button variant="outline">Back</Button>
             </Link>
