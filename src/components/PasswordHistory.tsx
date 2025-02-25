@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Trash2, Star, Copy, RefreshCw } from "lucide-react"
+import { Trash2, Star, Copy } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   AlertDialog,
