@@ -39,7 +39,7 @@ export function SymbolSelector({
 		<div
 			className={`w-full space-y-4 ${disabled ? "opacity-50 pointer-events-none" : ""}`}
 		>
-			<div className="flex justify-center mb-4">
+			<div className="flex justify-center gap-4">
 				<Button
 					variant="outline"
 					size="sm"

@@ -180,7 +180,7 @@ export default function PasswordGeneratorPage() {
 								/>
 							</div>
 							<div className={`${includeNumbers ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? 'opacity-50' : ''}` }>
-							<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+							<div className="row"><span className="text-xs">Include </span>Numbers</div>
 								<Switch
 									checked={includeNumbers}
 									onCheckedChange={(checked) => {
@@ -191,7 +191,7 @@ export default function PasswordGeneratorPage() {
 						</div>
 						<div className={` ${includeSymbols ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl mt-4` }>
 							<div className={`flex-col  items-center justify-between ${!includeSymbols ? 'opacity-50' : ''} transition-opacity duration-300`}>
-								<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+								<div className="row"><span className="text-xs">Include </span>Symbols</div>
 								<Switch className="ml-4"
 									checked={includeSymbols}
 									onCheckedChange={(checked) => {
@@ -199,7 +199,7 @@ export default function PasswordGeneratorPage() {
 									}}	
 								/>
 							</div>
-							<div className="mt-4">
+						
 								
 								<SymbolSelector
 									selectedSymbols={customSymbols}
@@ -208,7 +208,7 @@ export default function PasswordGeneratorPage() {
 									}}
 									disabled={!includeSymbols}
 								/>
-							</div>
+							
 						</div>
 						<div className="mt-6 text-center">
 							<Link href="/history">
