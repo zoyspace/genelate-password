@@ -13,7 +13,7 @@ import Link from "next/link";
 export default function PasswordGeneratorPage() {
 	// biome-ignore format:
 	const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
-	const [length, setLength] = useState(12);
+	const [length, setLength] = useState(16);
 	const [includeUppercase, setIncludeUppercase] = useState(true);
 	const [includeNumbers, setIncludeNumbers] = useState(true);
 	const [includeSymbols, setIncludeSymbols] = useState(false);
@@ -31,7 +31,7 @@ export default function PasswordGeneratorPage() {
 			const storedIsDarkMode = sessionStorage.getItem("isDarkMode");
 			const storedCustomSymbols = sessionStorage.getItem("customSymbols");
 
-			setLength(storedLength !== null ? Number.parseInt(storedLength, 10) : 12);
+			setLength(storedLength !== null ? Number.parseInt(storedLength, 10) : length);
 			setIncludeUppercase(storedIncludeUppercase !== null ? JSON.parse(storedIncludeUppercase) : true);
 			setIncludeNumbers(storedIncludeNumbers !== null ? JSON.parse(storedIncludeNumbers) : true);
 			setIncludeSymbols(storedIncludeSymbols !== null ? JSON.parse(storedIncludeSymbols) : false);
@@ -65,6 +65,11 @@ export default function PasswordGeneratorPage() {
 		includeSymbols,
 		isClient,
 	]);
+
+	// Add a new effect to synchronize the dark mode state with the document class
+	useEffect(() => {
+		document.documentElement.classList.toggle("dark", isDarkMode);
+	}, [isDarkMode]);
 
 	const toggleDarkMode = () => {
 		sessionStorage.setItem("shouldGeneratePassword", "false");
@@ -149,7 +154,7 @@ export default function PasswordGeneratorPage() {
 						/>
 						<div>
 							<label htmlFor="password-length-slider" className="block mb-2">
-								Password Length: {length}
+								Password Length: <span className="text-xl">{length}</span>
 							</label>
 							<Slider
 								id="password-length-slider"

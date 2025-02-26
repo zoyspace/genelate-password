@@ -15,18 +15,25 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+interface HistoryProps {
+  isDarkMode: boolean
+}
+
 interface PasswordEntry {
   id: string
   password: string
   createdAt: string
   isFavorite: boolean
+
 }
 
-export function PasswordHistory() {
+export function PasswordHistory({isDarkMode}: HistoryProps) {
   const [history, setHistory] = useState<PasswordEntry[]>([])
   // const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showClearDialog, setShowClearDialog] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  
+    
 
   useEffect(() => {
     loadHistory()
@@ -43,6 +50,8 @@ export function PasswordHistory() {
       }))
       setHistory(updatedHistory)
       sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+    } else {
+      setHistory([]);
     }
   }
 
@@ -55,12 +64,10 @@ export function PasswordHistory() {
 
   const deleteEntry = (id: string) => {
     // setDeletingId(id)
-    setTimeout(() => {
       const updatedHistory = history.filter((entry) => entry.id !== id)
       setHistory(updatedHistory)
       sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
       // setDeletingId(null)
-    }, 500)
   }
 
   const toggleFavorite = (id: string) => {
@@ -89,42 +96,49 @@ export function PasswordHistory() {
         </Button>
       </div>
       <div className="space-y-4">
-        <AnimatePresence>
-          {history.map((entry) => (
-            <motion.div
-              key={entry.id}
-              className="bg-secondary p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{
-                opacity: 0,
-                height: 0,
-                backgroundColor: "rgb(254, 202, 202)",
-                transition: { duration: 0.5 },
-              }}
-            >
-              <div className="flex flex-col ">
-                <div className="flex justify-between items-center pl-4">
-                  <span className="text-sm text-muted-foreground">{entry.createdAt}</span>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(entry.id)}>
-                      <Star className={`h-4 w-4 ${entry.isFavorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
+        {history.length === 0 ? (
+          <div className="text-center p-4 text-muted-foreground">
+            History is empty
+          </div>
+        ) : (
+          <AnimatePresence>
+            {history.map((entry) => (
+              <motion.div
+                key={entry.id}
+                className="bg-secondary p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                  backgroundColor: "rgb(254, 202, 202)",
+                  transition: { duration: 0.5 },
+                }}
+              >
+                <div className="flex flex-col ">
+                  <div className="flex justify-between items-center pl-4">
+                    <span className="text-sm text-muted-foreground">{entry.createdAt}</span>
+                    <div className="flex space-x-2">
+                      <Button variant="ghost" size="icon" onClick={() => toggleFavorite(entry.id)}>
+                        <Star className={`h-4 w-4 ${entry.isFavorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className={`flex items-center space-x-2 ${isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"}  p-4 rounded`}>
+                    <div className="font-mono text-sm break-all flex-grow">{entry.password}</div>
+                    <Button variant="ghost" size="icon" onClick={() => copyToClipboard(entry.id, entry.password)}>
+                      <Copy className={`h-4 w-4 ${copiedId === entry.id ? "text-green-500" : ""}`} />
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2 bg-background p-4 rounded">
-                  <div className="font-mono text-sm break-all flex-grow">{entry.password}</div>
-                  <Button variant="ghost" size="icon" onClick={() => copyToClipboard(entry.id, entry.password)}>
-                    <Copy className={`h-4 w-4 ${copiedId === entry.id ? "text-green-500" : ""}`} />
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        )}
       </div>
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
