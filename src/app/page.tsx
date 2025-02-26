@@ -152,7 +152,7 @@ export default function PasswordGeneratorPage() {
 							generatePass={generatePass} 
 							isDarkMode ={isDarkMode}
 						/>
-						<div>
+						<div >
 							<label htmlFor="password-length-slider" className="block mb-2">
 								Password Length: <span className="text-xl">{length}</span>
 							</label>
@@ -169,45 +169,46 @@ export default function PasswordGeneratorPage() {
 								step={1}
 							/>
 						</div>
-						<div className="flex items-center justify-between">
-							<span>Include Uppercase</span>
-							<Switch
-								checked={includeUppercase}
-								onCheckedChange={(checked) => {
-									setIncludeUppercase(checked);
-
-								}}
-							/>
+						<div className="mt-4 flex gap-4">
+							<div className={`${includeUppercase ? 'border-4 p-2' : 'border p-[11px]'}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeUppercase ? 'opacity-50' : ''}` }>
+								<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+								<Switch
+									checked={includeUppercase}
+									onCheckedChange={(checked) => {
+										setIncludeUppercase(checked);
+									}}
+								/>
+							</div>
+							<div className={`${includeNumbers ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? 'opacity-50' : ''}` }>
+							<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+								<Switch
+									checked={includeNumbers}
+									onCheckedChange={(checked) => {
+										setIncludeNumbers(checked);
+									}}
+								/>
+							</div>
 						</div>
-						<div className="flex items-center justify-between">
-							<span>Include Numbers</span>
-							<Switch
-								checked={includeNumbers}
-								onCheckedChange={(checked) => {
-									setIncludeNumbers(checked);
-								}}
-							/>
-						</div>
-						<div className="flex items-center justify-between">
-							<span>Include Symbols</span>
-							<Switch
-								checked={includeSymbols}
-								onCheckedChange={(checked) => {
-									setIncludeSymbols(checked);
-								}}
-							/>
-						</div>
-						<div>
-							<label htmlFor="custom-symbols-selector" className="block mb-2">
-								Custom Symbols
-							</label>
-							<SymbolSelector
-								selectedSymbols={customSymbols}
-								onSymbolsChange={(symbols) => {
-									setCustomSymbols(symbols);
-								}}
-								disabled={!includeSymbols}
-							/>
+						<div className={` ${includeSymbols ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl mt-4` }>
+							<div className={`flex-col  items-center justify-between ${!includeSymbols ? 'opacity-50' : ''} transition-opacity duration-300`}>
+								<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+								<Switch className="ml-4"
+									checked={includeSymbols}
+									onCheckedChange={(checked) => {
+										setIncludeSymbols(checked);
+									}}	
+								/>
+							</div>
+							<div className="mt-4">
+								
+								<SymbolSelector
+									selectedSymbols={customSymbols}
+									onSymbolsChange={(symbols) => {
+										setCustomSymbols(symbols);
+									}}
+									disabled={!includeSymbols}
+								/>
+							</div>
 						</div>
 						<div className="mt-6 text-center">
 							<Link href="/history">
