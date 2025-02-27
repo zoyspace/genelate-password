@@ -169,7 +169,7 @@ export default function PasswordGeneratorPage() {
 						<PasswordDisplay
 							password={password}
 							generatePass={generatePass} 
-							isDarkMode={isDarkMode}
+							// isDarkMode={isDarkMode}
 						/>
 						<div >
 							<label htmlFor="password-length-slider" className="block mb-2">
