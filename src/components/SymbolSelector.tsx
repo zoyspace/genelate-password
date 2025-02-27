@@ -18,9 +18,9 @@ export function SymbolSelector({
 	onSymbolsChange,
 	disabled,
 }: SymbolSelectorProps) {
-	// useState を削除し、props から受け取った selectedSymbols を使用します
-
 	const handleSymbolToggle = (symbol: string) => {
+		if (disabled) return;
+		
 		const newSymbols = selectedSymbols.includes(symbol)
 			? selectedSymbols.filter((s) => s !== symbol)
 			: [...selectedSymbols, symbol];
@@ -28,23 +28,27 @@ export function SymbolSelector({
 	};
 
 	const handleSelectAll = () => {
-		onSymbolsChange(DEFAULT_SYMBOLS);
+		if (disabled) return;
+		onSymbolsChange([...DEFAULT_SYMBOLS]);
 	};
 
 	const handleDeselectAll = () => {
+		if (disabled) return;
 		onSymbolsChange([]);
 	};
 
+	const allSelected = DEFAULT_SYMBOLS.length === selectedSymbols.length;
+	const noneSelected = selectedSymbols.length === 0;
+
 	return (
-		<div
-			className={`w-full space-y-4 ${disabled ? "opacity-50 pointer-events-none" : ""}`}
-		>
+		<div className="w-full space-y-4">
 			<div className="flex justify-center gap-4">
 				<Button
 					variant="outline"
 					size="sm"
 					onClick={handleSelectAll}
-					disabled={disabled}
+					disabled={disabled || allSelected}
+					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
 					全て選択
 				</Button>
@@ -52,12 +56,13 @@ export function SymbolSelector({
 					variant="outline"
 					size="sm"
 					onClick={handleDeselectAll}
-					disabled={disabled}
+					disabled={disabled || noneSelected}
+					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
 					全て解除
 				</Button>
 			</div>
-			<div className="grid grid-cols-5 gap-4">
+			<div className={`grid grid-cols-5 gap-4 ${disabled ? "opacity-50" : ""}`}>
 				{DEFAULT_SYMBOLS.map((symbol) => (
 					<div key={symbol} className="flex items-center space-x-2">
 						<Checkbox
@@ -66,7 +71,12 @@ export function SymbolSelector({
 							onCheckedChange={() => handleSymbolToggle(symbol)}
 							disabled={disabled}
 						/>
-						<Label htmlFor={`symbol-${symbol}`}>{symbol}</Label>
+						<Label
+							htmlFor={`symbol-${symbol}`}
+							className={disabled ? "cursor-not-allowed" : ""}
+						>
+							{symbol}
+						</Label>
 					</div>
 				))}
 			</div>

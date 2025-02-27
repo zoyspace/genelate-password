@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,  } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
 import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function PasswordGeneratorPage() {
 	// biome-ignore format:
@@ -17,110 +18,121 @@ export default function PasswordGeneratorPage() {
 	const [includeUppercase, setIncludeUppercase] = useState(true);
 	const [includeNumbers, setIncludeNumbers] = useState(true);
 	const [includeSymbols, setIncludeSymbols] = useState(false);
-	const [isDarkMode, setIsDarkMode] = useState(false);
+	const { isDarkMode, toggleDarkMode } = useTheme();
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	const [password, setPassword] = useState<string>("");
 	
 	const [isClient, setIsClient] = useState(false);
+	const [settingsChanged, setSettingsChanged] = useState(false); // 設定変更フラグ
 
 	useEffect(() => {
-			const storedLength = sessionStorage.getItem("passwordLength");
-			const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
-			const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
-			const storedIncludeSymbols = sessionStorage.getItem("includeSymbols");
-			const storedIsDarkMode = sessionStorage.getItem("isDarkMode");
-			const storedCustomSymbols = sessionStorage.getItem("customSymbols");
+		const storedLength = sessionStorage.getItem("passwordLength");
+		const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
+		const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
+		const storedIncludeSymbols = sessionStorage.getItem("includeSymbols");
+		const storedCustomSymbols = sessionStorage.getItem("customSymbols");
 
-			setLength(storedLength !== null ? Number.parseInt(storedLength, 10) : length);
-			setIncludeUppercase(storedIncludeUppercase !== null ? JSON.parse(storedIncludeUppercase) : true);
-			setIncludeNumbers(storedIncludeNumbers !== null ? JSON.parse(storedIncludeNumbers) : true);
-			setIncludeSymbols(storedIncludeSymbols !== null ? JSON.parse(storedIncludeSymbols) : false);
-			setIsDarkMode(storedIsDarkMode !== null ? JSON.parse(storedIsDarkMode) : false);
-			setCustomSymbols(storedCustomSymbols !== null ? JSON.parse(storedCustomSymbols) : DEFAULT_SYMBOLS);
+		if (storedLength !== null) setLength(Number.parseInt(storedLength, 10));
+		if (storedIncludeUppercase !== null) setIncludeUppercase(JSON.parse(storedIncludeUppercase));
+		if (storedIncludeNumbers !== null) setIncludeNumbers(JSON.parse(storedIncludeNumbers));
+		if (storedIncludeSymbols !== null) setIncludeSymbols(JSON.parse(storedIncludeSymbols));
+		if (storedCustomSymbols !== null) setCustomSymbols(JSON.parse(storedCustomSymbols));
 		
-	}, []);
-
-	useEffect(() => {
+		// 履歴から最新のパスワードを取得
+		const storedHistory = sessionStorage.getItem("passwordHistory");
+		if (storedHistory) {
+			try {
+				const history = JSON.parse(storedHistory);
+				if (history.length > 0) {
+					// 最新のパスワードを表示
+					setPassword(history[0].password);
+				} else {
+					// 履歴が空の場合は新しいパスワードを生成
+					const newPass = generatePassword();
+					setPassword(newPass);
+					savePasswordToHistory(newPass);
+				}
+			} catch (error) {
+				console.error("Failed to parse history:", error);
+				const newPass = generatePassword();
+				setPassword(newPass);
+				savePasswordToHistory(newPass);
+			}
+		} else {
+			// 履歴がない場合は新しいパスワードを生成
+			const newPass = generatePassword();
+			setPassword(newPass);
+			savePasswordToHistory(newPass);
+		}
+		
 		setIsClient(true);
 	}, []);
 
+	// 設定変更時の処理
 	useEffect(() => {
-		if (isClient) {
-			sessionStorage.setItem("passwordLength", length.toString());
-			sessionStorage.setItem("includeUppercase", includeUppercase.toString());
-			sessionStorage.setItem("includeNumbers", includeNumbers.toString());
-			sessionStorage.setItem("isDarkMode", isDarkMode.toString());
-			sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
-			sessionStorage.setItem("includeSymbols", includeSymbols.toString());
+		if (!isClient) return;
+		
+		// 設定をsessionStorageに保存
+		sessionStorage.setItem("passwordLength", length.toString());
+		sessionStorage.setItem("includeUppercase", JSON.stringify(includeUppercase));
+		sessionStorage.setItem("includeNumbers", JSON.stringify(includeNumbers));
+		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
+		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
 
-			handleGeneratePassword();
-			sessionStorage.setItem("shouldGeneratePassword", "true")
+		// 設定変更時のみ新しいパスワードを生成（初回レンダリング時は除く）
+		if (settingsChanged) {
+			generatePass();
+		} else {
+			setSettingsChanged(true);
 		}
 	}, [
 		length,
 		includeUppercase,
 		includeNumbers,
-		isDarkMode,
 		customSymbols,
 		includeSymbols,
-		isClient,
 	]);
 
-	// Add a new effect to synchronize the dark mode state with the document class
-	useEffect(() => {
-		document.documentElement.classList.toggle("dark", isDarkMode);
-	}, [isDarkMode]);
-
-	const toggleDarkMode = () => {
-		sessionStorage.setItem("shouldGeneratePassword", "false");
-		setIsDarkMode((prev: boolean) => {
-			const newMode = !prev;
-			document.documentElement.classList.toggle("dark", newMode);
-			return newMode;
-		});
+	const handleToggleDarkMode = () => {
+		toggleDarkMode();
 	};
-
-	// useEffect(() => {
-	// 	handleGeneratePassword();
-	// }, []);
-
-	const handleGeneratePassword = () => {
-		const storedShouldGeneratePassword = sessionStorage.getItem("shouldGeneratePassword");
-		if (storedShouldGeneratePassword === "false") {
-			const storedHistory = sessionStorage.getItem("passwordHistory");
-			const history = storedHistory ? JSON.parse(storedHistory) : [];
-			const latestHIstory = history.length > 0 ? history[0] : "password"
-			setPassword(latestHIstory.password);
-		}else{
-			generatePass();
-		}
-	}
 	
-	const generatePass = () => {
+	// パスワード生成ロジックを別関数に分離
+	const generatePassword = () => {
 		let charset = 'abcdefghijklmnopqrstuvwxyz'
 		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 		if (includeNumbers) charset += '0123456789'
-		if (includeSymbols) charset += customSymbols.join('')
+		if (includeSymbols && customSymbols.length > 0) charset += customSymbols.join('')
 	  
 		let newPassword = ''
 		for (let i = 0; i < length; i++) {
 		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length))
 		}
-	  
+		
+		return newPassword;
+	}
+	
+	const generatePass = () => {
+		const newPassword = generatePassword();
 		setPassword(newPassword);
+		savePasswordToHistory(newPassword);
+	}
 
+	// パスワード履歴保存用のヘルパー関数
+	const savePasswordToHistory = (newPassword: string) => {
 		const newEntry = {
 			id: crypto.randomUUID(),
 			password: newPassword,
 			createdAt: new Date().toLocaleString(),
 			isFavorite: false,
-		  }
+		}
+		
+		// パスワード履歴を更新
 		const storedHistory = sessionStorage.getItem("passwordHistory")
       	const history = storedHistory ? JSON.parse(storedHistory) : []
       	history.unshift(newEntry)
-      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10))) // Keep only the last 10 passwords
+      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10)))
 	}
-
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
@@ -138,7 +150,7 @@ export default function PasswordGeneratorPage() {
 				>
 					<div className="flex justify-between items-center mb-6">
 						<h1 className="text-3xl font-bold">Password Generator</h1>
-						<Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+						<Button variant="ghost" size="icon" onClick={handleToggleDarkMode}>
 							{isDarkMode ? (
 								<Sun className="h-6 w-6" />
 							) : (
@@ -148,9 +160,9 @@ export default function PasswordGeneratorPage() {
 					</div>
 					<div className="space-y-4">
 						<PasswordDisplay
-							password	={password}
+							password={password}
 							generatePass={generatePass} 
-							isDarkMode ={isDarkMode}
+							isDarkMode={isDarkMode}
 						/>
 						<div >
 							<label htmlFor="password-length-slider" className="block mb-2">

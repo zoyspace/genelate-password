@@ -14,27 +14,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTheme } from "@/context/ThemeContext"
 
-interface HistoryProps {
-  isDarkMode: boolean
-}
+interface HistoryProps {}
 
 interface PasswordEntry {
   id: string
   password: string
   createdAt: string
   isFavorite: boolean
-
 }
 
-export function PasswordHistory({isDarkMode}: HistoryProps) {
+export function PasswordHistory({}: HistoryProps) {
+  const { isDarkMode } = useTheme(); // ThemeContextから取得
   const [history, setHistory] = useState<PasswordEntry[]>([])
-  // const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showClearDialog, setShowClearDialog] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   
-    
-
   useEffect(() => {
     loadHistory()
   }, [])
@@ -42,16 +38,21 @@ export function PasswordHistory({isDarkMode}: HistoryProps) {
   const loadHistory = () => {
     const storedHistory = sessionStorage.getItem("passwordHistory")
     if (storedHistory) {
-      const parsedHistory :PasswordEntry[] = JSON.parse(storedHistory)
-      const updatedHistory = parsedHistory.map((entry) => ({
-        ...entry,
-        id: entry.id || crypto.randomUUID(),
-        isFavorite: entry.isFavorite || false,
-      }))
-      setHistory(updatedHistory)
-      sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+      try {
+        const parsedHistory: PasswordEntry[] = JSON.parse(storedHistory)
+        const updatedHistory = parsedHistory.map((entry) => ({
+          ...entry,
+          id: entry.id || crypto.randomUUID(),
+          isFavorite: entry.isFavorite || false,
+        }))
+        setHistory(updatedHistory)
+        sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
+      } catch (error) {
+        console.error("Failed to parse history:", error)
+        setHistory([])
+      }
     } else {
-      setHistory([]);
+      setHistory([])
     }
   }
 
@@ -63,16 +64,14 @@ export function PasswordHistory({isDarkMode}: HistoryProps) {
   }
 
   const deleteEntry = (id: string) => {
-    // setDeletingId(id)
-      const updatedHistory = history.filter((entry) => entry.id !== id)
-      setHistory(updatedHistory)
-      sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
-      // setDeletingId(null)
+    const updatedHistory = history.filter((entry) => entry.id !== id)
+    setHistory(updatedHistory)
+    sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
   }
 
   const toggleFavorite = (id: string) => {
     const updatedHistory = history.map((entry) =>
-      entry.id === id ? { ...entry, isFavorite: !entry.isFavorite } : entry,
+      entry.id === id ? { ...entry, isFavorite: !entry.isFavorite } : entry
     )
     setHistory(updatedHistory)
     sessionStorage.setItem("passwordHistory", JSON.stringify(updatedHistory))
@@ -87,10 +86,6 @@ export function PasswordHistory({isDarkMode}: HistoryProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
-        {/* <Button variant="outline" onClick={loadHistory}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button> */}
         <Button variant="destructive" onClick={() => setShowClearDialog(true)}>
           Clear History
         </Button>
@@ -101,56 +96,66 @@ export function PasswordHistory({isDarkMode}: HistoryProps) {
             History is empty
           </div>
         ) : (
-          <AnimatePresence>
-            {history.map((entry) => (
-              <motion.div
-                key={entry.id}
-                className="bg-secondary p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{
-                  opacity: 0,
-                  height: 0,
-                  backgroundColor: "rgb(254, 202, 202)",
-                  transition: { duration: 0.5 },
-                }}
-              >
-                <div className="flex flex-col ">
-                  <div className="flex justify-between items-center pl-4">
-                    <span className="text-sm text-muted-foreground">{entry.createdAt}</span>
-                    <div className="flex space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => toggleFavorite(entry.id)}>
-                        <Star className={`h-4 w-4 ${entry.isFavorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
+          <div className="space-y-4">
+            <AnimatePresence mode="popLayout">
+              {history.map((entry) => (
+                <motion.div
+                  key={entry.id}
+                  className={`p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ${entry.isFavorite ? "bg-yellow-50 dark:bg-yellow-900/30" : "bg-secondary"}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ 
+                    opacity: 0,
+                    height: 0,
+                    marginTop: 0,
+                    marginBottom: 0,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    overflow: "hidden"
+                  }}
+                  transition={{ duration: 0.3 }}
+                  layout
+                >
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-center pl-4">
+                      <span className="text-sm text-muted-foreground flex itemsCenter gap-2">
+                        {entry.isFavorite && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
+                        {entry.createdAt}
+                      </span>
+                      <div className="flex space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => toggleFavorite(entry.id)}>
+                          <Star className={`h-4 w-4 ${entry.isFavorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className={`flex items-center space-x-2 ${isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"} p-4 rounded`}>
+                      <div className="font-mono text-sm break-all flex-grow">{entry.password}</div>
+                      <Button variant="ghost" size="icon" onClick={() => copyToClipboard(entry.id, entry.password)}>
+                        <Copy className={`h-4 w-4 ${copiedId === entry.id ? "text-green-500" : ""}`} />
                       </Button>
                     </div>
                   </div>
-                  
-                  <div className={`flex items-center space-x-2 ${isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"}  p-4 rounded`}>
-                    <div className="font-mono text-sm break-all flex-grow">{entry.password}</div>
-                    <Button variant="ghost" size="icon" onClick={() => copyToClipboard(entry.id, entry.password)}>
-                      <Copy className={`h-4 w-4 ${copiedId === entry.id ? "text-green-500" : ""}`} />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         )}
       </div>
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>本当に履歴を削除しますか？</AlertDialogTitle>
+            <AlertDialogTitle>Clear history?</AlertDialogTitle>
             <AlertDialogDescription>
-              この操作は取り消せません。お気に入りの項目は削除されません。
+              This action cannot be undone. Favorited passwords will be kept.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={clearHistory}>削除する</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={clearHistory}>Clear</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
