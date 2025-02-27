@@ -16,8 +16,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useTheme } from "@/context/ThemeContext"
 
-interface HistoryProps {}
-
 interface PasswordEntry {
   id: string
   password: string
@@ -25,7 +23,7 @@ interface PasswordEntry {
   isFavorite: boolean
 }
 
-export function PasswordHistory({}: HistoryProps) {
+export function PasswordHistory() {
   const { isDarkMode } = useTheme(); // ThemeContextから取得
   const [history, setHistory] = useState<PasswordEntry[]>([])
   const [showClearDialog, setShowClearDialog] = useState(false)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,49 @@ export default function PasswordGeneratorPage() {
 	const [password, setPassword] = useState<string>("");
 	
 	const [isClient, setIsClient] = useState(false);
-	const [settingsChanged, setSettingsChanged] = useState(false); // 設定変更フラグ
+	const [initialRender, setInitialRender] = useState(true);
 
+	// useCallbackでメモ化して依存性エラーを解消
+	const generatePassword = useCallback(() => {
+		let charset = 'abcdefghijklmnopqrstuvwxyz'
+		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+		if (includeNumbers) charset += '0123456789'
+		if (includeSymbols && customSymbols.length > 0) charset += customSymbols.join('')
+	  
+		let newPassword = ''
+		for (let i = 0; i < length; i++) {
+		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length))
+		}
+		
+		return newPassword;
+	}, [length, includeUppercase, includeNumbers, includeSymbols, customSymbols]);
+	
+	// パスワード履歴保存用のヘルパー関数
+	const savePasswordToHistory = useCallback((newPassword: string) => {
+		const newEntry = {
+			id: crypto.randomUUID(),
+			password: newPassword,
+			createdAt: new Date().toLocaleString(),
+			isFavorite: false,
+		}
+		
+		// パスワード履歴を更新
+		const storedHistory = sessionStorage.getItem("passwordHistory")
+      	const history = storedHistory ? JSON.parse(storedHistory) : []
+      	history.unshift(newEntry)
+      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10)))
+	}, []);
+	
+	// パスワード生成関数
+	const generatePass = useCallback(() => {
+		const newPassword = generatePassword();
+		setPassword(newPassword);
+		savePasswordToHistory(newPassword);
+	}, [generatePassword, savePasswordToHistory]);
+
+	// 初期化 - この処理は一度だけ実行
 	useEffect(() => {
+		// この処理は一度だけ実行されるべき
 		const storedLength = sessionStorage.getItem("passwordLength");
 		const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
 		const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
@@ -47,30 +87,34 @@ export default function PasswordGeneratorPage() {
 					// 最新のパスワードを表示
 					setPassword(history[0].password);
 				} else {
-					// 履歴が空の場合は新しいパスワードを生成
-					const newPass = generatePassword();
-					setPassword(newPass);
-					savePasswordToHistory(newPass);
+					// 履歴が空の場合は新しいパスワードを生成して設定
+					const newPassword = generatePassword();
+					setPassword(newPassword);
+					savePasswordToHistory(newPassword);
 				}
 			} catch (error) {
 				console.error("Failed to parse history:", error);
-				const newPass = generatePassword();
-				setPassword(newPass);
-				savePasswordToHistory(newPass);
+				const newPassword = generatePassword();
+				setPassword(newPassword);
+				savePasswordToHistory(newPassword);
 			}
 		} else {
-			// 履歴がない場合は新しいパスワードを生成
-			const newPass = generatePassword();
-			setPassword(newPass);
-			savePasswordToHistory(newPass);
+			// 履歴がない場合は新しいパスワードを生成して設定
+			const newPassword = generatePassword();
+			setPassword(newPassword);
+			savePasswordToHistory(newPassword);
 		}
 		
 		setIsClient(true);
-	}, []);
+		setInitialRender(false);
+		
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // 初期化は一度だけ実行するので空の依存配列
 
-	// 設定変更時の処理
+	// 設定を保存するEffect
 	useEffect(() => {
-		if (!isClient) return;
+		// 初期レンダリング時は何もしない
+		if (!isClient || initialRender) return;
 		
 		// 設定をsessionStorageに保存
 		sessionStorage.setItem("passwordLength", length.toString());
@@ -78,62 +122,25 @@ export default function PasswordGeneratorPage() {
 		sessionStorage.setItem("includeNumbers", JSON.stringify(includeNumbers));
 		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
-
-		// 設定変更時のみ新しいパスワードを生成（初回レンダリング時は除く）
-		if (settingsChanged) {
-			generatePass();
-		} else {
-			setSettingsChanged(true);
-		}
+		
+		// 設定変更時のみパスワードを生成
+		generatePass();
+		
 	}, [
 		length,
 		includeUppercase,
-		includeNumbers,
+		includeNumbers, 
 		customSymbols,
 		includeSymbols,
+		isClient,
+		initialRender,
+		generatePass
 	]);
 
 	const handleToggleDarkMode = () => {
 		toggleDarkMode();
 	};
 	
-	// パスワード生成ロジックを別関数に分離
-	const generatePassword = () => {
-		let charset = 'abcdefghijklmnopqrstuvwxyz'
-		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-		if (includeNumbers) charset += '0123456789'
-		if (includeSymbols && customSymbols.length > 0) charset += customSymbols.join('')
-	  
-		let newPassword = ''
-		for (let i = 0; i < length; i++) {
-		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length))
-		}
-		
-		return newPassword;
-	}
-	
-	const generatePass = () => {
-		const newPassword = generatePassword();
-		setPassword(newPassword);
-		savePasswordToHistory(newPassword);
-	}
-
-	// パスワード履歴保存用のヘルパー関数
-	const savePasswordToHistory = (newPassword: string) => {
-		const newEntry = {
-			id: crypto.randomUUID(),
-			password: newPassword,
-			createdAt: new Date().toLocaleString(),
-			isFavorite: false,
-		}
-		
-		// パスワード履歴を更新
-		const storedHistory = sessionStorage.getItem("passwordHistory")
-      	const history = storedHistory ? JSON.parse(storedHistory) : []
-      	history.unshift(newEntry)
-      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10)))
-	}
-
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
 			<div
