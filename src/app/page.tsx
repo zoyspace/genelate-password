@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,8 @@ export default function PasswordGeneratorPage() {
 	const [isClient, setIsClient] = useState(false);
 	const [initialRender, setInitialRender] = useState(true);
 
-	// useCallbackでメモ化して依存性エラーを解消
-	const generatePassword = useCallback(() => {
+	// useCallbackを削除してシンプルな関数に
+	const generatePassword = () => {
 		let charset = 'abcdefghijklmnopqrstuvwxyz'
 		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 		if (includeNumbers) charset += '0123456789'
@@ -38,10 +38,10 @@ export default function PasswordGeneratorPage() {
 		}
 		
 		return newPassword;
-	}, [length, includeUppercase, includeNumbers, includeSymbols, customSymbols]);
+	};
 	
-	// パスワード履歴保存用のヘルパー関数
-	const savePasswordToHistory = useCallback((newPassword: string) => {
+	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
+	const savePasswordToHistory = (newPassword: string) => {
 		const newEntry = {
 			id: crypto.randomUUID(),
 			password: newPassword,
@@ -54,14 +54,14 @@ export default function PasswordGeneratorPage() {
       	const history = storedHistory ? JSON.parse(storedHistory) : []
       	history.unshift(newEntry)
       	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10)))
-	}, []);
+	};
 	
-	// パスワード生成関数
-	const generatePass = useCallback(() => {
+	// パスワード生成関数 - useCallbackを削除
+	const generateWithHistory = () => {
 		const newPassword = generatePassword();
 		setPassword(newPassword);
 		savePasswordToHistory(newPassword);
-	}, [generatePassword, savePasswordToHistory]);
+	};
 
 	// 初期化 - この処理は一度だけ実行
 	useEffect(() => {
@@ -100,9 +100,7 @@ export default function PasswordGeneratorPage() {
 			}
 		} else {
 			// 履歴がない場合は新しいパスワードを生成して設定
-			const newPassword = generatePassword();
-			setPassword(newPassword);
-			savePasswordToHistory(newPassword);
+			 generateWithHistory();
 		}
 		
 		setIsClient(true);
@@ -124,7 +122,7 @@ export default function PasswordGeneratorPage() {
 		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
 		
 		// 設定変更時のみパスワードを生成
-		generatePass();
+		generateWithHistory();
 		
 	}, [
 		length,
@@ -134,7 +132,6 @@ export default function PasswordGeneratorPage() {
 		includeSymbols,
 		isClient,
 		initialRender,
-		generatePass
 	]);
 
 	const handleToggleDarkMode = () => {
@@ -168,7 +165,7 @@ export default function PasswordGeneratorPage() {
 					<div className="space-y-4">
 						<PasswordDisplay
 							password={password}
-							generatePass={generatePass} 
+							generatePass={generateWithHistory} 
 							// isDarkMode={isDarkMode}
 						/>
 						<div >

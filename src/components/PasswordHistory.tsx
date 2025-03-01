@@ -148,7 +148,7 @@ export function PasswordHistory() {
           <AlertDialogHeader>
             <AlertDialogTitle>Clear history?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. Favorited passwords will be kept.
+              This action cannot be undone. Favorite passwords will be kept.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
