@@ -50,7 +50,7 @@ export function SymbolSelector({
 					disabled={disabled || allSelected}
 					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
-					全て選択
+					All Select
 				</Button>
 				<Button
 					variant="outline"
@@ -59,7 +59,7 @@ export function SymbolSelector({
 					disabled={disabled || noneSelected}
 					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
-					全て解除
+					None Select
 				</Button>
 			</div>
 			<div className={`grid grid-cols-5 gap-4 ${disabled ? "opacity-50" : ""}`}>
