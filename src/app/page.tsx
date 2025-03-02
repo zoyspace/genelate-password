@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -21,25 +21,19 @@ export default function PasswordGeneratorPage() {
 	const { isDarkMode, toggleDarkMode } = useTheme();
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	const [password, setPassword] = useState<string>("");
-	
+
 	const [isClient, setIsClient] = useState(false);
 	const [initialRender, setInitialRender] = useState(true);
 
-	// useCallbackを削除してシンプルな関数に
-	const generatePassword = () => {
-		let charset = 'abcdefghijklmnopqrstuvwxyz'
-		if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-		if (includeNumbers) charset += '0123456789'
-		if (includeSymbols && customSymbols.length > 0) charset += customSymbols.join('')
+	interface Options {
+		includeUppercase: boolean;
+		includeNumbers: boolean;
+		includeSymbols: boolean;
+		customSymbols: string[];
+		length: number; // 長さを追加
+	  }
 	  
-		let newPassword = ''
-		for (let i = 0; i < length; i++) {
-		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length))
-		}
-		
-		return newPassword;
-	};
-	
+	  
 	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
 	const savePasswordToHistory = (newPassword: string) => {
 		const newEntry = {
@@ -47,21 +41,50 @@ export default function PasswordGeneratorPage() {
 			password: newPassword,
 			createdAt: new Date().toLocaleString(),
 			isFavorite: false,
-		}
-		
+		};
+
 		// パスワード履歴を更新
-		const storedHistory = sessionStorage.getItem("passwordHistory")
-      	const history = storedHistory ? JSON.parse(storedHistory) : []
-      	history.unshift(newEntry)
-      	sessionStorage.setItem("passwordHistory", JSON.stringify(history.slice(0, 10)))
+		const storedHistory = sessionStorage.getItem("passwordHistory");
+		const history = storedHistory ? JSON.parse(storedHistory) : [];
+		history.unshift(newEntry);
+		sessionStorage.setItem(
+			"passwordHistory",
+			JSON.stringify(history.slice(0, 10)),
+		);
 	};
-	
-	// パスワード生成関数 - useCallbackを削除
-	const generateWithHistory = () => {
-		const newPassword = generatePassword();
+
+	// パスワード生成関数 
+	const generatePassword = (
+			options: {
+				_includeUppercase?: boolean;
+				_includeNumbers?: boolean;
+				_includeSymbols?: boolean;
+				_customSymbols?: string[];
+				_length?: number;
+			} = {}
+		  ) => {
+			const {
+				_includeUppercase = includeUppercase,
+				_includeNumbers = includeNumbers,
+				_includeSymbols = includeSymbols,
+				_customSymbols = customSymbols,
+				_length = length,
+			} = options;
+		let charset = "abcdefghijklmnopqrstuvwxyz";
+		if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		if (_includeNumbers) charset += "0123456789";
+		if (_includeSymbols && _customSymbols.length > 0) {
+		  charset += _customSymbols.join("");
+		}
+	  
+		let newPassword = "";
+		for (let i = 0; i < _length; i++) {
+		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+		}
+	  
 		setPassword(newPassword);
 		savePasswordToHistory(newPassword);
-	};
+	  };
 
 	// 初期化 - この処理は一度だけ実行
 	useEffect(() => {
@@ -73,39 +96,36 @@ export default function PasswordGeneratorPage() {
 		const storedCustomSymbols = sessionStorage.getItem("customSymbols");
 
 		if (storedLength !== null) setLength(Number.parseInt(storedLength, 10));
-		if (storedIncludeUppercase !== null) setIncludeUppercase(JSON.parse(storedIncludeUppercase));
-		if (storedIncludeNumbers !== null) setIncludeNumbers(JSON.parse(storedIncludeNumbers));
-		if (storedIncludeSymbols !== null) setIncludeSymbols(JSON.parse(storedIncludeSymbols));
-		if (storedCustomSymbols !== null) setCustomSymbols(JSON.parse(storedCustomSymbols));
-		
+		if (storedIncludeUppercase !== null)
+			setIncludeUppercase(JSON.parse(storedIncludeUppercase));
+		if (storedIncludeNumbers !== null)
+			setIncludeNumbers(JSON.parse(storedIncludeNumbers));
+		if (storedIncludeSymbols !== null)
+			setIncludeSymbols(JSON.parse(storedIncludeSymbols));
+		if (storedCustomSymbols !== null)
+			setCustomSymbols(JSON.parse(storedCustomSymbols));
+
 		// 履歴から最新のパスワードを取得
 		const storedHistory = sessionStorage.getItem("passwordHistory");
 		if (storedHistory) {
-			try {
-				const history = JSON.parse(storedHistory);
-				if (history.length > 0) {
-					// 最新のパスワードを表示
-					setPassword(history[0].password);
-				} else {
-					// 履歴が空の場合は新しいパスワードを生成して設定
-					const newPassword = generatePassword();
-					setPassword(newPassword);
-					savePasswordToHistory(newPassword);
-				}
-			} catch (error) {
-				console.error("Failed to parse history:", error);
-				const newPassword = generatePassword();
-				setPassword(newPassword);
-				savePasswordToHistory(newPassword);
+			const history = JSON.parse(storedHistory);
+			if (history.length > 0) {
+				// 最新のパスワードを表示
+				setPassword(history[0].password);
+			} else {
+				// 履歴が空の場合は新しいパスワードを生成して設定
+				setPassword("empty history");
 			}
 		} else {
-			// 履歴がない場合は新しいパスワードを生成して設定
-			 generateWithHistory();
+			setPassword("Output Area ");
+			// const newPassword = generatePassword(true,true,false,[]);
+			// setPassword(newPassword);
+			//  generateWithHistory();
 		}
-		
+
 		setIsClient(true);
 		setInitialRender(false);
-		
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // 初期化は一度だけ実行するので空の依存配列
 
@@ -113,21 +133,20 @@ export default function PasswordGeneratorPage() {
 	useEffect(() => {
 		// 初期レンダリング時は何もしない
 		if (!isClient || initialRender) return;
-		
+
 		// 設定をsessionStorageに保存
 		sessionStorage.setItem("passwordLength", length.toString());
-		sessionStorage.setItem("includeUppercase", JSON.stringify(includeUppercase));
+		sessionStorage.setItem(
+			"includeUppercase",
+			JSON.stringify(includeUppercase),
+		);
 		sessionStorage.setItem("includeNumbers", JSON.stringify(includeNumbers));
 		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
-		
-		// 設定変更時のみパスワードを生成
-		generateWithHistory();
-		
 	}, [
 		length,
 		includeUppercase,
-		includeNumbers, 
+		includeNumbers,
 		customSymbols,
 		includeSymbols,
 		isClient,
@@ -137,7 +156,7 @@ export default function PasswordGeneratorPage() {
 	const handleToggleDarkMode = () => {
 		toggleDarkMode();
 	};
-	
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
 			<div
@@ -165,10 +184,10 @@ export default function PasswordGeneratorPage() {
 					<div className="space-y-4">
 						<PasswordDisplay
 							password={password}
-							generatePass={generateWithHistory} 
+							generatePass={generatePassword}
 							// isDarkMode={isDarkMode}
 						/>
-						<div >
+						<div>
 							<label htmlFor="password-length-slider" className="block mb-2">
 								Password Length: <span className="text-xl">{length}</span>
 							</label>
@@ -177,8 +196,7 @@ export default function PasswordGeneratorPage() {
 								value={[length]}
 								onValueChange={(value) => {
 									setLength(value[0]);
-							
-
+									generatePassword({_length: value[0]});
 								}}
 								max={32}
 								min={8}
@@ -186,45 +204,61 @@ export default function PasswordGeneratorPage() {
 							/>
 						</div>
 						<div className="mt-4 flex gap-4">
-							<div className={`${includeUppercase ? 'border-4 p-2' : 'border p-[11px]'}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeUppercase ? 'opacity-50' : ''}` }>
-								<div className="row"><span className="text-xs">Include </span>Uppercase</div>
+							<div
+								className={`${includeUppercase ? "border-4 p-2" : "border p-[11px]"}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeUppercase ? "opacity-50" : ""}`}
+							>
+								<div className="row">
+									<span className="text-xs">Include </span>Uppercase
+								</div>
 								<Switch
 									checked={includeUppercase}
 									onCheckedChange={(checked) => {
 										setIncludeUppercase(checked);
+										generatePassword({_includeUppercase: checked});
 									}}
 								/>
 							</div>
-							<div className={`${includeNumbers ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? 'opacity-50' : ''}` }>
-							<div className="row"><span className="text-xs">Include </span>Numbers</div>
+							<div
+								className={`${includeNumbers ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? "opacity-50" : ""}`}
+							>
+								<div className="row">
+									<span className="text-xs">Include </span>Numbers
+								</div>
 								<Switch
 									checked={includeNumbers}
 									onCheckedChange={(checked) => {
 										setIncludeNumbers(checked);
+										generatePassword({_includeNumbers: checked});
 									}}
 								/>
 							</div>
 						</div>
-						<div className={` ${includeSymbols ? 'border-4 p-2' : 'border p-[11px]'} rounded-2xl mt-4` }>
-							<div className={`flex-col  items-center justify-between ${!includeSymbols ? 'opacity-50' : ''} transition-opacity duration-300`}>
-								<div className="row"><span className="text-xs">Include </span>Symbols</div>
-								<Switch className="ml-4"
+						<div
+							className={` ${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
+						>
+							<div
+								className={`flex-col  items-center justify-between ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
+							>
+								<div className="row">
+									<span className="text-xs">Include </span>Symbols
+								</div>
+								<Switch
+									className="ml-4"
 									checked={includeSymbols}
 									onCheckedChange={(checked) => {
 										setIncludeSymbols(checked);
-									}}	
+										generatePassword({_includeSymbols: checked});
+									}}
 								/>
 							</div>
-						
-								
-								<SymbolSelector
-									selectedSymbols={customSymbols}
-									onSymbolsChange={(symbols) => {
-										setCustomSymbols(symbols);
-									}}
-									disabled={!includeSymbols}
-								/>
-							
+
+							<SymbolSelector
+								selectedSymbols={customSymbols}
+								onSymbolsChange={(symbols) => {
+									setCustomSymbols(symbols);
+								}}
+								disabled={!includeSymbols}
+							/>
 						</div>
 						<div className="mt-6 text-center">
 							<Link href="/history">
