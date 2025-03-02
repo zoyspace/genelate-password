@@ -45,7 +45,7 @@ export default function PasswordGeneratorPage() {
 		);
 	};
 
-	// パスワード生成関数
+	// パスワード生成関数 - 遅延処理を追加
 	const generatePassword = (
 		options: {
 			_includeUppercase?: boolean;
@@ -64,21 +64,31 @@ export default function PasswordGeneratorPage() {
 			_length = length,
 			_includeLowercase = includeLowercase, // 追加
 		} = options;
-		let charset = "";
-		if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz"; // 変更: 小文字は条件付き
-		if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		if (_includeNumbers) charset += "0123456789";
-		if (_includeSymbols && _customSymbols.length > 0) {
-			charset += _customSymbols.join("");
-		}
+		
+		// パスワード生成処理を非同期化
+		setTimeout(() => {
+			let charset = "";
+			if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz"; // 変更: 小文字は条件付き
+			if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			if (_includeNumbers) charset += "0123456789";
+			if (_includeSymbols && _customSymbols.length > 0) {
+				charset += _customSymbols.join("");
+			}
+			
+			// 有効な文字セットがあるか確認
+			if (charset.length === 0) {
+				setPassword("********");
+				return;
+			}
 
-		let newPassword = "";
-		for (let i = 0; i < _length; i++) {
-			newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
-		}
+			let newPassword = "";
+			for (let i = 0; i < _length; i++) {
+				newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+			}
 
-		setPassword(newPassword);
-		savePasswordToHistory(newPassword);
+			setPassword(newPassword);
+			savePasswordToHistory(newPassword);
+		}, 200); // 次のイベントループまで遅延
 	};
 
 	// 初期化 - この処理は一度だけ実行
