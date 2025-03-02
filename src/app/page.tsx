@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -26,13 +26,7 @@ export default function PasswordGeneratorPage() {
 	const [isClient, setIsClient] = useState(false);
 	const [initialRender, setInitialRender] = useState(true);
 
-	interface Options {
-		includeUppercase: boolean;
-		includeNumbers: boolean;
-		includeSymbols: boolean;
-		customSymbols: string[];
-		length: number; // 長さを追加
-	  }
+	
 	  
 	  
 	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
