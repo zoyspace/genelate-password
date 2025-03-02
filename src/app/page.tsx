@@ -26,9 +26,6 @@ export default function PasswordGeneratorPage() {
 	const [isClient, setIsClient] = useState(false);
 	const [initialRender, setInitialRender] = useState(true);
 
-	
-	  
-	  
 	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
 	const savePasswordToHistory = (newPassword: string) => {
 		const newEntry = {
@@ -48,41 +45,41 @@ export default function PasswordGeneratorPage() {
 		);
 	};
 
-	// パスワード生成関数 
+	// パスワード生成関数
 	const generatePassword = (
-			options: {
-				_includeUppercase?: boolean;
-				_includeNumbers?: boolean;
-				_includeSymbols?: boolean;
-				_customSymbols?: string[];
-				_length?: number;
-				_includeLowercase?: boolean; // 追加: 小文字を含むか
-			} = {}
-		  ) => {
-			const {
-				_includeUppercase = includeUppercase,
-				_includeNumbers = includeNumbers,
-				_includeSymbols = includeSymbols,
-				_customSymbols = customSymbols,
-				_length = length,
-				_includeLowercase = includeLowercase, // 追加
-			} = options;
+		options: {
+			_includeUppercase?: boolean;
+			_includeNumbers?: boolean;
+			_includeSymbols?: boolean;
+			_customSymbols?: string[];
+			_length?: number;
+			_includeLowercase?: boolean; // 追加: 小文字を含むか
+		} = {},
+	) => {
+		const {
+			_includeUppercase = includeUppercase,
+			_includeNumbers = includeNumbers,
+			_includeSymbols = includeSymbols,
+			_customSymbols = customSymbols,
+			_length = length,
+			_includeLowercase = includeLowercase, // 追加
+		} = options;
 		let charset = "";
 		if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz"; // 変更: 小文字は条件付き
 		if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		if (_includeNumbers) charset += "0123456789";
 		if (_includeSymbols && _customSymbols.length > 0) {
-		  charset += _customSymbols.join("");
+			charset += _customSymbols.join("");
 		}
-	  
+
 		let newPassword = "";
 		for (let i = 0; i < _length; i++) {
-		  newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+			newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
 		}
-	  
+
 		setPassword(newPassword);
 		savePasswordToHistory(newPassword);
-	  };
+	};
 
 	// 初期化 - この処理は一度だけ実行
 	useEffect(() => {
@@ -144,7 +141,10 @@ export default function PasswordGeneratorPage() {
 		sessionStorage.setItem("includeNumbers", JSON.stringify(includeNumbers));
 		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
 		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
-		sessionStorage.setItem("includeLowercase", JSON.stringify(includeLowercase)); // 追加
+		sessionStorage.setItem(
+			"includeLowercase",
+			JSON.stringify(includeLowercase),
+		); // 追加
 	}, [
 		length,
 		includeUppercase,
@@ -199,7 +199,7 @@ export default function PasswordGeneratorPage() {
 								value={[length]}
 								onValueChange={(value) => {
 									setLength(value[0]);
-									generatePassword({_length: value[0]});
+									generatePassword({ _length: value[0] });
 								}}
 								max={32}
 								min={8}
@@ -210,61 +210,65 @@ export default function PasswordGeneratorPage() {
 							<div
 								className={`${includeLowercase ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeLowercase ? "opacity-50" : ""}`}
 							>
-								<div className="row">
+								<label htmlFor="include-lowercase-switch" className="row">
 									<span className="text-xs">Include </span>Lowercase
-								</div>
+								</label>
 								<Switch
+									id="include-lowercase-switch"
 									checked={includeLowercase}
 									onCheckedChange={(checked) => {
 										setIncludeLowercase(checked);
-										generatePassword({_includeLowercase: checked});
+										generatePassword({ _includeLowercase: checked });
 									}}
 								/>
 							</div>
 							<div
 								className={`${includeUppercase ? "border-4 p-2" : "border p-[11px]"}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeUppercase ? "opacity-50" : ""}`}
 							>
-								<div className="row">
+								<label htmlFor="include-uppercase-switch" className="row">
 									<span className="text-xs">Include </span>Uppercase
-								</div>
+								</label>
 								<Switch
+									id="include-uppercase-switch"
 									checked={includeUppercase}
 									onCheckedChange={(checked) => {
 										setIncludeUppercase(checked);
-										generatePassword({_includeUppercase: checked});
+										generatePassword({ _includeUppercase: checked });
 									}}
 								/>
 							</div>
 							<div
 								className={`${includeNumbers ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? "opacity-50" : ""}`}
 							>
-								<div className="row">
+								<label htmlFor="include-numbers-switch" className="row">
 									<span className="text-xs">Include </span>Numbers
-								</div>
+								</label>
 								<Switch
+									id="include-numbers-switch"
 									checked={includeNumbers}
 									onCheckedChange={(checked) => {
 										setIncludeNumbers(checked);
-										generatePassword({_includeNumbers: checked});
+										generatePassword({ _includeNumbers: checked });
 									}}
 								/>
 							</div>
 						</div>
 						<div
-							className={` ${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
+							className={`  ${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
 						>
 							<div
-								className={`flex-col  items-center justify-between ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
+								className={`flex flex-col  mb-1  ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
 							>
-								<div className="row">
+								<label htmlFor="include-symbols-switch" className="row">
 									<span className="text-xs">Include </span>Symbols
-								</div>
+								</label>
 								<Switch
+									id="include-symbols-switch"
 									className="ml-4"
 									checked={includeSymbols}
 									onCheckedChange={(checked) => {
 										setIncludeSymbols(checked);
-										generatePassword({_includeSymbols: checked});
+										generatePassword({ _includeSymbols: checked });
 									}}
 								/>
 							</div>
