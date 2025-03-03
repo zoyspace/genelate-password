@@ -24,7 +24,6 @@ export default function PasswordGeneratorPage() {
 	const [includeLowercase, setIncludeLowercase] = useState(true); // 追加: 小文字の有効/無効
 
 	const [isClient, setIsClient] = useState(false);
-	const [initialRender, setInitialRender] = useState(true);
 	const timerRef = useRef<NodeJS.Timeout | null>(null); // タイマーの参照を保持するためのref
 
 	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
@@ -84,7 +83,9 @@ export default function PasswordGeneratorPage() {
 			
 			// 有効な文字セットがあるか確認
 			if (charset.length === 0) {
-				setPassword("********");
+				// const error = "Please enable at least one character set.";
+				const paddingChar = "*".repeat(_length);
+				setPassword(paddingChar);
 				return;
 			}
 
@@ -140,7 +141,6 @@ export default function PasswordGeneratorPage() {
 		}
 
 		setIsClient(true);
-		setInitialRender(false);
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // 初期化は一度だけ実行するので空の依存配列
@@ -148,7 +148,7 @@ export default function PasswordGeneratorPage() {
 	// 設定を保存するEffect
 	useEffect(() => {
 		// 初期レンダリング時は何もしない
-		if (!isClient || initialRender) return;
+		if (!isClient ) return;
 
 		// 設定をsessionStorageに保存
 		sessionStorage.setItem("passwordLength", length.toString());
@@ -171,7 +171,6 @@ export default function PasswordGeneratorPage() {
 		includeSymbols,
 		includeLowercase,
 		isClient,
-		initialRender,
 	]);
 
 	const handleToggleDarkMode = () => {
