@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export default function PasswordGeneratorPage() {
 
 	const [isClient, setIsClient] = useState(false);
 	const [initialRender, setInitialRender] = useState(true);
+	const timerRef = useRef<NodeJS.Timeout | null>(null); // タイマーの参照を保持するためのref
 
 	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
 	const savePasswordToHistory = (newPassword: string) => {
@@ -45,7 +46,7 @@ export default function PasswordGeneratorPage() {
 		);
 	};
 
-	// パスワード生成関数 - 遅延処理を追加
+	// パスワード生成関数 - デバウンス処理に改良
 	const generatePassword = (
 		options: {
 			_includeUppercase?: boolean;
@@ -65,8 +66,14 @@ export default function PasswordGeneratorPage() {
 			_includeLowercase = includeLowercase, // 追加
 		} = options;
 		
+			// 以前のタイマーをキャンセル
+		if (timerRef.current) {
+			clearTimeout(timerRef.current);
+			timerRef.current = null;
+		}
+		
 		// パスワード生成処理を非同期化
-		setTimeout(() => {
+		timerRef.current = setTimeout(() => {
 			let charset = "";
 			if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz"; // 変更: 小文字は条件付き
 			if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -88,6 +95,7 @@ export default function PasswordGeneratorPage() {
 
 			setPassword(newPassword);
 			savePasswordToHistory(newPassword);
+			timerRef.current = null;
 		}, 200); // 次のイベントループまで遅延
 	};
 
@@ -169,6 +177,15 @@ export default function PasswordGeneratorPage() {
 	const handleToggleDarkMode = () => {
 		toggleDarkMode();
 	};
+
+	// コンポーネントのアンマウント時にタイマーをクリーンアップ
+	useEffect(() => {
+		return () => {
+			if (timerRef.current) {
+				clearTimeout(timerRef.current);
+			}
+		};
+	}, []);
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
