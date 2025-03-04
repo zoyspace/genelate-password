@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -10,181 +10,22 @@ import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
+import { usePasswordGenerator } from "@/hooks/usePasswordGenerator";
+import { usePasswordSettings, DEFAULT_SYMBOLS } from "@/hooks/usePasswordSettings";
 
 export default function PasswordGeneratorPage() {
-	// biome-ignore format:
-	const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
-	const [length, setLength] = useState(16);
-	const [includeUppercase, setIncludeUppercase] = useState(true);
-	const [includeNumbers, setIncludeNumbers] = useState(true);
-	const [includeSymbols, setIncludeSymbols] = useState(false);
 	const { isDarkMode, toggleDarkMode } = useTheme();
-	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
-	const [password, setPassword] = useState<string>("");
-	const [includeLowercase, setIncludeLowercase] = useState(true); // 追加: 小文字の有効/無効
-
-	const [isClient, setIsClient] = useState(false);
-	const timerRef = useRef<NodeJS.Timeout | null>(null); // タイマーの参照を保持するためのref
-
-	// パスワード履歴保存用のヘルパー関数 - useCallbackを削除
-	const savePasswordToHistory = (newPassword: string) => {
-		const newEntry = {
-			id: crypto.randomUUID(),
-			password: newPassword,
-			createdAt: new Date().toLocaleString(),
-			isFavorite: false,
-		};
-
-		// パスワード履歴を更新
-		const storedHistory = sessionStorage.getItem("passwordHistory");
-		const history = storedHistory ? JSON.parse(storedHistory) : [];
-		history.unshift(newEntry);
-		sessionStorage.setItem(
-			"passwordHistory",
-			JSON.stringify(history.slice(0, 10)),
-		);
-	};
-
-	// パスワード生成関数 - デバウンス処理に改良
-	const generatePassword = (
-		options: {
-			_includeUppercase?: boolean;
-			_includeNumbers?: boolean;
-			_includeSymbols?: boolean;
-			_customSymbols?: string[];
-			_length?: number;
-			_includeLowercase?: boolean; // 追加: 小文字を含むか
-		} = {},
+	const { settings, updateSetting } = usePasswordSettings();
+	const { password, generatePassword } = usePasswordGenerator(settings);
+	
+	// 設定が変わったときにパスワードを再生成
+	const handleSettingChange = <K extends keyof typeof settings>(
+		key: K,
+		value: typeof settings[K]
 	) => {
-		const {
-			_includeUppercase = includeUppercase,
-			_includeNumbers = includeNumbers,
-			_includeSymbols = includeSymbols,
-			_customSymbols = customSymbols,
-			_length = length,
-			_includeLowercase = includeLowercase, // 追加
-		} = options;
-		
-			// 以前のタイマーをキャンセル
-		if (timerRef.current) {
-			clearTimeout(timerRef.current);
-			timerRef.current = null;
-		}
-		
-		// パスワード生成処理を非同期化
-		timerRef.current = setTimeout(() => {
-			let charset = "";
-			if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz"; // 変更: 小文字は条件付き
-			if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			if (_includeNumbers) charset += "0123456789";
-			if (_includeSymbols && _customSymbols.length > 0) {
-				charset += _customSymbols.join("");
-			}
-			
-			// 有効な文字セットがあるか確認
-			if (charset.length === 0) {
-				// const error = "Please enable at least one character set.";
-				const paddingChar = "*".repeat(_length);
-				setPassword(paddingChar);
-				return;
-			}
-
-			let newPassword = "";
-			for (let i = 0; i < _length; i++) {
-				newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
-			}
-
-			setPassword(newPassword);
-			savePasswordToHistory(newPassword);
-			timerRef.current = null;
-		}, 200); // 次のイベントループまで遅延
+		const updatedSettings = updateSetting(key, value);
+		generatePassword({ [key]: value });
 	};
-
-	// 初期化 - この処理は一度だけ実行
-	useEffect(() => {
-		// この処理は一度だけ実行されるべき
-		const storedLength = sessionStorage.getItem("passwordLength");
-		const storedIncludeUppercase = sessionStorage.getItem("includeUppercase");
-		const storedIncludeNumbers = sessionStorage.getItem("includeNumbers");
-		const storedIncludeSymbols = sessionStorage.getItem("includeSymbols");
-		const storedCustomSymbols = sessionStorage.getItem("customSymbols");
-		const storedIncludeLowercase = sessionStorage.getItem("includeLowercase"); // 追加
-
-		if (storedLength !== null) setLength(Number.parseInt(storedLength, 10));
-		if (storedIncludeUppercase !== null)
-			setIncludeUppercase(JSON.parse(storedIncludeUppercase));
-		if (storedIncludeNumbers !== null)
-			setIncludeNumbers(JSON.parse(storedIncludeNumbers));
-		if (storedIncludeSymbols !== null)
-			setIncludeSymbols(JSON.parse(storedIncludeSymbols));
-		if (storedCustomSymbols !== null)
-			setCustomSymbols(JSON.parse(storedCustomSymbols));
-		if (storedIncludeLowercase !== null)
-			setIncludeLowercase(JSON.parse(storedIncludeLowercase)); // 追加
-
-		// 履歴から最新のパスワードを取得
-		const storedHistory = sessionStorage.getItem("passwordHistory");
-		if (storedHistory) {
-			const history = JSON.parse(storedHistory);
-			if (history.length > 0) {
-				// 最新のパスワードを表示
-				setPassword(history[0].password);
-			} else {
-				// 履歴が空の場合は新しいパスワードを生成して設定
-				setPassword("empty history");
-			}
-		} else {
-			setPassword("Output Area ");
-			// const newPassword = generatePassword(true,true,false,[]);
-			// setPassword(newPassword);
-			//  generateWithHistory();
-		}
-
-		setIsClient(true);
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // 初期化は一度だけ実行するので空の依存配列
-
-	// 設定を保存するEffect
-	useEffect(() => {
-		// 初期レンダリング時は何もしない
-		if (!isClient ) return;
-
-		// 設定をsessionStorageに保存
-		sessionStorage.setItem("passwordLength", length.toString());
-		sessionStorage.setItem(
-			"includeUppercase",
-			JSON.stringify(includeUppercase),
-		);
-		sessionStorage.setItem("includeNumbers", JSON.stringify(includeNumbers));
-		sessionStorage.setItem("customSymbols", JSON.stringify(customSymbols));
-		sessionStorage.setItem("includeSymbols", JSON.stringify(includeSymbols));
-		sessionStorage.setItem(
-			"includeLowercase",
-			JSON.stringify(includeLowercase),
-		); // 追加
-	}, [
-		length,
-		includeUppercase,
-		includeNumbers,
-		customSymbols,
-		includeSymbols,
-		includeLowercase,
-		isClient,
-	]);
-
-	const handleToggleDarkMode = () => {
-		toggleDarkMode();
-	};
-
-	// コンポーネントのアンマウント時にタイマーをクリーンアップ
-	useEffect(() => {
-		return () => {
-			if (timerRef.current) {
-				clearTimeout(timerRef.current);
-			}
-		};
-	}, []);
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
@@ -202,7 +43,7 @@ export default function PasswordGeneratorPage() {
 				>
 					<div className="flex justify-between items-center mb-6">
 						<h1 className="text-3xl font-bold">Password Generator</h1>
-						<Button variant="ghost" size="icon" onClick={handleToggleDarkMode}>
+						<Button variant="ghost" size="icon" onClick={toggleDarkMode}>
 							{isDarkMode ? (
 								<Sun className="h-6 w-6" />
 							) : (
@@ -214,18 +55,16 @@ export default function PasswordGeneratorPage() {
 						<PasswordDisplay
 							password={password}
 							generatePass={generatePassword}
-							// isDarkMode={isDarkMode}
 						/>
 						<div>
 							<label htmlFor="password-length-slider" className="block mb-2">
-								Password Length: <span className="text-xl">{length}</span>
+								Password Length: <span className="text-xl">{settings.length}</span>
 							</label>
 							<Slider
 								id="password-length-slider"
-								value={[length]}
+								value={[settings.length]}
 								onValueChange={(value) => {
-									setLength(value[0]);
-									generatePassword({ _length: value[0] });
+									handleSettingChange('length', value[0]);
 								}}
 								max={32}
 								min={8}
@@ -234,56 +73,53 @@ export default function PasswordGeneratorPage() {
 						</div>
 						<div className="mt-4 flex gap-4">
 							<div
-								className={`${includeLowercase ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeLowercase ? "opacity-50" : ""}`}
+								className={`${settings.includeLowercase ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!settings.includeLowercase ? "opacity-50" : ""}`}
 							>
 								<label htmlFor="include-lowercase-switch" className="row">
 									<span className="text-xs">Include </span>Lowercase
 								</label>
 								<Switch
 									id="include-lowercase-switch"
-									checked={includeLowercase}
+									checked={settings.includeLowercase}
 									onCheckedChange={(checked) => {
-										setIncludeLowercase(checked);
-										generatePassword({ _includeLowercase: checked });
+										handleSettingChange('includeLowercase', checked);
 									}}
 								/>
 							</div>
 							<div
-								className={`${includeUppercase ? "border-4 p-2" : "border p-[11px]"}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeUppercase ? "opacity-50" : ""}`}
+								className={`${settings.includeUppercase ? "border-4 p-2" : "border p-[11px]"}  rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!settings.includeUppercase ? "opacity-50" : ""}`}
 							>
 								<label htmlFor="include-uppercase-switch" className="row">
 									<span className="text-xs">Include </span>Uppercase
 								</label>
 								<Switch
 									id="include-uppercase-switch"
-									checked={includeUppercase}
+									checked={settings.includeUppercase}
 									onCheckedChange={(checked) => {
-										setIncludeUppercase(checked);
-										generatePassword({ _includeUppercase: checked });
+										handleSettingChange('includeUppercase', checked);
 									}}
 								/>
 							</div>
 							<div
-								className={`${includeNumbers ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeNumbers ? "opacity-50" : ""}`}
+								className={`${settings.includeNumbers ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!settings.includeNumbers ? "opacity-50" : ""}`}
 							>
 								<label htmlFor="include-numbers-switch" className="row">
 									<span className="text-xs">Include </span>Numbers
 								</label>
 								<Switch
 									id="include-numbers-switch"
-									checked={includeNumbers}
+									checked={settings.includeNumbers}
 									onCheckedChange={(checked) => {
-										setIncludeNumbers(checked);
-										generatePassword({ _includeNumbers: checked });
+										handleSettingChange('includeNumbers', checked);
 									}}
 								/>
 							</div>
 						</div>
 						<div
-							className={`  ${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
+							className={`  ${settings.includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
 						>
 							<div
-								className={`flex flex-col  mb-1  ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
+								className={`flex flex-col  mb-1  ${!settings.includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
 							>
 								<label htmlFor="include-symbols-switch" className="row">
 									<span className="text-xs">Include </span>Symbols
@@ -291,20 +127,19 @@ export default function PasswordGeneratorPage() {
 								<Switch
 									id="include-symbols-switch"
 									className="ml-4"
-									checked={includeSymbols}
+									checked={settings.includeSymbols}
 									onCheckedChange={(checked) => {
-										setIncludeSymbols(checked);
-										generatePassword({ _includeSymbols: checked });
+										handleSettingChange('includeSymbols', checked);
 									}}
 								/>
 							</div>
 
 							<SymbolSelector
-								selectedSymbols={customSymbols}
+								selectedSymbols={settings.customSymbols}
 								onSymbolsChange={(symbols) => {
-									setCustomSymbols(symbols);
+									handleSettingChange('customSymbols', symbols);
 								}}
-								disabled={!includeSymbols}
+								disabled={!settings.includeSymbols}
 							/>
 						</div>
 						<div className="mt-6 text-center">
