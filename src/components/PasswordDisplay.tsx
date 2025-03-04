@@ -8,7 +8,14 @@ import { useTheme } from "@/context/ThemeContext"
 
 interface PasswordDisplayProps {
   password: string
-  generatePass: (options?: { _includeUppercase?: boolean; _includeNumbers?: boolean; _includeSymbols?: boolean; _customSymbols?: string[]; _length?: number }) => void
+  generatePass: (options?: { 
+    _includeUppercase?: boolean; 
+    _includeNumbers?: boolean; 
+    _includeSymbols?: boolean; 
+    _customSymbols?: string[]; 
+    _length?: number;
+    _includeLowercase?: boolean;
+  }) => void
 }
 
 export default function PasswordDisplay({
