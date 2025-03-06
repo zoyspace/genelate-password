@@ -1,6 +1,6 @@
 "use client";
 
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -13,40 +13,40 @@ import { useTheme } from "@/context/ThemeContext";
 import { usePassword } from "@/context/PasswordContext";
 
 export default function PasswordGeneratorPage() {
-	const { 
-		length, 
+	const {
+		length,
 		setLength,
-		includeUppercase, 
+		includeUppercase,
 		setIncludeUppercase,
-		includeNumbers, 
+		includeNumbers,
 		setIncludeNumbers,
-		includeSymbols, 
+		includeSymbols,
 		setIncludeSymbols,
-		includeLowercase, 
+		includeLowercase,
 		setIncludeLowercase,
-		customSymbols, 
+		customSymbols,
 		setCustomSymbols,
 		password,
-		generatePassword
+		generatePassword,
 	} = usePassword();
-	
+
 	const { isDarkMode, toggleDarkMode } = useTheme();
 	// const [isClient, setIsClient] = useState(false);
 
-	// クライアントサイド処理を有効化
+	// 初回マウント時だけ実行したいため、エラー表示を無視する。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		// setIsClient(true)
-		
 		// 初回アクセス時にパスワードがセットされていない場合は生成
 		if (!password || password === "Output Area") {
 			// 少し遅延させてアニメーション効果を適用
 			const timer = setTimeout(() => {
 				generatePassword();
 			}, 500);
-			
+
+			console.log("main page useEffect when true!!");
 			return () => clearTimeout(timer);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		console.log("main page useEffect!!");
 	}, []);
 
 	const handleToggleDarkMode = () => {
