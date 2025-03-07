@@ -42,35 +42,8 @@ interface PasswordContextType {
 	toggleFavorite: (id: string) => void;
 	removeFromHistory: (id: string) => void;
 }
-
-const DEFAULT_SYMBOLS = [
-	"!",
-	"@",
-	"#",
-	"$",
-	"%",
-	"^",
-	"&",
-	"*",
-	"(",
-	")",
-	"-",
-	"_",
-	"+",
-	"=",
-	"{",
-	"}",
-	"[",
-	"]",
-	"|",
-	":",
-	";",
-	"<",
-	">",
-	",",
-	".",
-	"?",
-	"/",
+// biome-ignore format: Preserve manual formatting
+const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
 ];
 
 // コンテキストの作成
@@ -87,9 +60,7 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 	const [includeLowercase, setIncludeLowercase] = useState(true);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	const [password, setPassword] = useState<string>("");
-	const [passwordHistory, setPasswordHistory] = useState<
-		PasswordHistoryEntry[]
-	>([]);
+	const [passwordHistory, setPasswordHistory] = useState<PasswordHistoryEntry[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);

@@ -16,29 +16,26 @@ export default function HistoryPage() {
 
 	return (
 		<div
-			className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-gray-950 to-gray-900" : "from-gray-50 to-slate-100"} transition-colors duration-500 p-4`}
+			className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-background to-background/80" : "from-background/5 to-background/10"} transition-colors duration-500 p-4`}
 		>
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6, ease: "easeOut" }}
-				className="w-full max-w-md relative"
+				className="w-full h-screen mb-40 max-w-md relative"
 			>
 				<div
 					className={`w-full max-w-md p-6 rounded-2xl shadow-xl backdrop-blur-sm
             ${
 							isDarkMode
-								? "bg-gray-800/90 text-white border border-gray-700"
-								: "bg-white/90 text-gray-800 border border-gray-200"
+								? "bg-card/90 border-border"
+								: "bg-white/90 border-border/50"
 						} 
-            transition-all duration-500`}
+            text-foreground border transition-all duration-500`}
 				>
 					<div className="flex justify-between items-center mb-6">
 						<motion.h1
-							className="text-3xl font-bold"
-							style={{
-								color: isDarkMode ? "#e2e8f0" : "#1e293b",
-							}}
+							className="text-3xl font-bold text-foreground"
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							transition={{ delay: 0.2, duration: 0.8 }}
@@ -48,9 +45,7 @@ export default function HistoryPage() {
 						<Link href="/">
 							<Button
 								variant="outline"
-								className={`rounded-lg px-4 transition-all ${
-									isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-								}`}
+								className="rounded-lg px-4 transition-all hover:bg-muted/50"
 							>
 								Back
 							</Button>
@@ -58,12 +53,7 @@ export default function HistoryPage() {
 					</div>
 
 					<motion.div
-						className="flex mb-8 bg-opacity-20 rounded-lg p-1"
-						style={{
-							backgroundColor: isDarkMode
-								? "rgba(30, 41, 59, 0.4)"
-								: "rgba(241, 245, 249, 0.7)",
-						}}
+						className="flex mb-8 rounded-lg p-1 bg-muted/30"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ delay: 0.3, duration: 0.5 }}
@@ -71,12 +61,8 @@ export default function HistoryPage() {
 						<Button
 							className={`py-2.5 px-6 rounded-lg font-medium transition-all duration-300 flex-1 ${
 								activeTab === "history"
-									? isDarkMode
-										? "bg-gray-700 text-gray-100 shadow-sm"
-										: "bg-gray-200 text-gray-800 shadow-sm"
-									: isDarkMode
-										? "text-gray-400 hover:bg-gray-700/50"
-										: "text-gray-600 hover:bg-gray-100/70"
+									? "bg-primary/15 text-primary shadow-sm"
+									: "text-muted-foreground hover:bg-muted/40"
 							}`}
 							onClick={() => setActiveTab("history")}
 						>
@@ -85,12 +71,8 @@ export default function HistoryPage() {
 						<Button
 							className={`py-2.5 px-6 rounded-lg font-medium transition-all duration-300 flex-1 ${
 								activeTab === "favorites"
-									? isDarkMode
-										? "bg-gray-700 text-gray-100 shadow-sm"
-										: "bg-gray-200 text-gray-800 shadow-sm"
-									: isDarkMode
-										? "text-gray-400 hover:bg-gray-700/50"
-										: "text-gray-600 hover:bg-gray-100/70"
+									? "bg-primary/15 text-primary shadow-sm"
+									: "text-muted-foreground hover:bg-muted/40"
 							}`}
 							onClick={() => setActiveTab("favorites")}
 						>
