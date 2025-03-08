@@ -3,20 +3,17 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PasswordHistory } from "@/components/PasswordHistory";
-import { FavoritePasswords } from "@/components/FavoritePasswords";
 import { motion } from "framer-motion";
 import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 
 export default function HistoryPage() {
 	const { isDarkMode } = useTheme();
-	const [activeTab, setActiveTab] = useState<"history" | "favorites">(
-		"history",
-	);
+	const [showFavorites, setShowFavorites] = useState(false);
 
 	return (
 		<div
-			className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-background to-background/80" : "from-background/5 to-background/10"} transition-colors duration-500 p-4`}
+			className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-background/90 to-background/70" : "from-slate-50 to-blue-200"} transition-colors duration-500 p-4`}
 		>
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
@@ -25,7 +22,7 @@ export default function HistoryPage() {
 				className="w-full h-screen mb-40 max-w-md relative"
 			>
 				<div
-					className={`w-full max-w-md p-6 rounded-2xl shadow-xl backdrop-blur-sm
+					className={`min-h-screen w-full max-w-md p-6 rounded-2xl shadow-xl backdrop-blur-sm
             ${
 							isDarkMode
 								? "bg-card/90 border-border"
@@ -53,45 +50,31 @@ export default function HistoryPage() {
 					</div>
 
 					<motion.div
-						className="flex mb-8 rounded-lg p-1 bg-muted/30"
+						className="flex mb-8 gap-4 rounded-lg p-1 justify-center"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ delay: 0.3, duration: 0.5 }}
 					>
 						<Button
-							className={`py-2.5 px-6 rounded-lg font-medium transition-all duration-300 flex-1 ${
-								activeTab === "history"
-									? "bg-primary/15 text-primary shadow-sm"
-									: "text-muted-foreground hover:bg-muted/40"
+							className={`py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
+								showFavorites
+									? "bg-white text-primary shadow-sm border-b-2 border-primary hover:bg-slate-100"
+									: "text-muted-foreground hover:bg-slate-100"
 							}`}
-							onClick={() => setActiveTab("history")}
+							onClick={() => setShowFavorites(!showFavorites)}
 						>
-							History
-						</Button>
-						<Button
-							className={`py-2.5 px-6 rounded-lg font-medium transition-all duration-300 flex-1 ${
-								activeTab === "favorites"
-									? "bg-primary/15 text-primary shadow-sm"
-									: "text-muted-foreground hover:bg-muted/40"
-							}`}
-							onClick={() => setActiveTab("favorites")}
-						>
-							Favorites
+							Favorites {showFavorites ? "ON" : "OFF"}
 						</Button>
 					</motion.div>
 
 					<motion.div
-						key={activeTab}
-						initial={{ opacity: 0, x: activeTab === "history" ? -20 : 20 }}
+						key={String(showFavorites)}
+						initial={{ opacity: 0, x: 0 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ duration: 0.5 }}
 						className="relative"
 					>
-						{activeTab === "history" ? (
-							<PasswordHistory />
-						) : (
-							<FavoritePasswords />
-						)}
+						<PasswordHistory showOnlyFavorites={showFavorites} />
 					</motion.div>
 				</div>
 			</motion.div>

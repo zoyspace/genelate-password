@@ -7,10 +7,17 @@ import { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { usePassword } from "@/context/PasswordContext";
 
-export function PasswordHistory() {
+export function PasswordHistory({
+	showOnlyFavorites = false,
+}: { showOnlyFavorites?: boolean }) {
 	const { isDarkMode } = useTheme();
 	const { passwordHistory, toggleFavorite, removeFromHistory } = usePassword();
 	const [copiedId, setCopiedId] = useState<string | null>(null);
+
+	// フィルタリングされたパスワード履歴
+	const filteredPasswords = showOnlyFavorites
+		? passwordHistory.filter((entry) => entry.isFavorite)
+		: passwordHistory;
 
 	const handleCopy = (password: string, id: string) => {
 		navigator.clipboard.writeText(password);
@@ -21,7 +28,7 @@ export function PasswordHistory() {
 	return (
 		<div className="space-y-5 mt-8">
 			<AnimatePresence initial={false}>
-				{passwordHistory.length === 0 ? (
+				{filteredPasswords.length === 0 ? (
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -31,11 +38,13 @@ export function PasswordHistory() {
 						<p
 							className={`${isDarkMode ? "text-gray-300" : "text-gray-500"} font-medium`}
 						>
-							履歴はまだありません
+							{showOnlyFavorites
+								? "お気に入りに登録したパスワードはありません"
+								: "履歴はまだありません"}
 						</p>
 					</motion.div>
 				) : (
-					passwordHistory.map((entry) => (
+					filteredPasswords.map((entry) => (
 						<motion.div
 							key={entry.id}
 							initial={{ opacity: 0, y: 20 }}
@@ -56,20 +65,20 @@ export function PasswordHistory() {
 										: "border-gray-100"
 							} hover:scale-[1.01] transition-transform`}
 						>
-							<div className="flex flex-col gap-3">
+							<div className="flex flex-col gap-1">
 								<div className="flex justify-between items-center">
-									<div className="flex items-center gap-2">
-										<Clock className="h-3 w-3 mr-1" />
+									<div className="flex items-center ">
+										<Clock className="h-3 w-3 " />
 										<p className="text-xs text-gray-500">{entry.createdAt}</p>
 										{entry.isFavorite && (
 											<span
-												className={`text-xs px-2 py-0.5 rounded-full ${
+												className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
 													isDarkMode
 														? "bg-amber-500/20 text-amber-300"
 														: "bg-amber-100 text-amber-700"
 												} font-medium`}
 											>
-												お気に入り
+												favorite
 											</span>
 										)}
 									</div>
@@ -81,18 +90,18 @@ export function PasswordHistory() {
 											className={`relative rounded-full hover:bg-opacity-80 ${
 												copiedId === entry.id
 													? isDarkMode
-														? "bg-green-700/30 text-green-300"
-														: "bg-green-100 text-green-700"
+														? "bg-green-700/30 text-green-300 hover:bg-green-700/30 hover:text-green-300"
+														: "bg-green-100 text-green-700 hover:bg-green-100 hover:text-green-700"
 													: ""
 											} transition-all duration-200`}
 										>
 											<Copy className="h-4 w-4" />
 											{copiedId === entry.id && (
 												<motion.span
-													initial={{ opacity: 0, y: 5 }}
-													animate={{ opacity: 1, y: 0 }}
+													initial={{ opacity: 0, x:0 ,y:0}}
+													animate={{ opacity: 1, x: -35 , y:-15}}
 													exit={{ opacity: 0 }}
-													className={`absolute -top-8 right-0 text-xs ${
+													className={`absolute right-0 text-xs ${
 														isDarkMode ? "bg-gray-800" : "bg-gray-900"
 													} text-white px-2.5 py-1 rounded-lg shadow-md`}
 												>
@@ -131,7 +140,7 @@ export function PasswordHistory() {
 									</div>
 								</div>
 
-								<div className="mt-2">
+								<div className="mt-1">
 									<p
 										className={`font-mono text-lg ${
 											isDarkMode ? "text-gray-100" : "text-gray-800"

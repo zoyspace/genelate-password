@@ -146,10 +146,10 @@ export default function PasswordGeneratorPage() {
 							</div>
 						</div>
 						<div
-							className={`  ${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
+							className={`  ${includeSymbols ? "border-4 p-2 " : "border p-[11px]"} rounded-2xl mt-4`}
 						>
 							<div
-								className={`flex flex-col  mb-1  ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
+								className={`flex flex-col  mb-1 ml-1 ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
 							>
 								<label htmlFor="include-symbols-switch" className="row">
 									<span className="text-xs">Include </span>Symbols
@@ -166,6 +166,7 @@ export default function PasswordGeneratorPage() {
 							</div>
 
 							<SymbolSelector
+								
 								selectedSymbols={customSymbols}
 								onSymbolsChange={(symbols) => {
 									setCustomSymbols(symbols);

@@ -41,7 +41,7 @@ export function SymbolSelector({
 	const noneSelected = selectedSymbols.length === 0;
 
 	return (
-		<div className="w-full space-y-4">
+		<div className="w-full space-y-4 ml-3 mb-2">
 			<div className="flex justify-center gap-4">
 				<Button
 					variant="outline"
