@@ -77,13 +77,13 @@ export default function PasswordGeneratorPage() {
 							)}
 						</Button>
 					</div>
-					<div className="space-y-4">
+					<div className="mb-4">
 						<PasswordDisplay
 							password={password}
 							generatePass={generatePassword}
 						/>
-						<div>
-							<label htmlFor="password-length-slider" className="block mb-2">
+						<div className="mb-10">
+							<label htmlFor="password-length-slider" className="block mb-4">
 								Password Length: <span className="text-xl">{length}</span>
 							</label>
 							<Slider
@@ -98,7 +98,7 @@ export default function PasswordGeneratorPage() {
 								step={1}
 							/>
 						</div>
-						<div className="mt-4 flex gap-4">
+						<div className="flex gap-4">
 							<div
 								className={`${includeLowercase ? "border-4 p-2" : "border p-[11px]"} rounded-2xl flex-1 flex flex-col items-center transition-opacity duration-300 ${!includeLowercase ? "opacity-50" : ""}`}
 							>
