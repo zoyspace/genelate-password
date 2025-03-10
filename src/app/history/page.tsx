@@ -49,23 +49,16 @@ export default function HistoryPage() {
 						</Link>
 					</div>
 
-					<motion.div
-						className="flex mb-8 gap-4 rounded-lg p-1 justify-center"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.3, duration: 0.5 }}
+					<Button
+						className={`py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
+							showFavorites
+								? "bg-white text-primary shadow-sm border-b-2 border-primary hover:bg-slate-100"
+								: "bg-white  text-muted-foreground hover:bg-slate-100"
+						}`}
+						onClick={() => setShowFavorites(!showFavorites)}
 					>
-						<Button
-							className={`py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
-								showFavorites
-									? "bg-white text-primary shadow-sm border-b-2 border-primary hover:bg-slate-100"
-									: "text-muted-foreground hover:bg-slate-100"
-							}`}
-							onClick={() => setShowFavorites(!showFavorites)}
-						>
-							Favorites {showFavorites ? "ON" : "OFF"}
-						</Button>
-					</motion.div>
+						Favorites {showFavorites ? "ON" : "OFF"}
+					</Button>
 
 					<motion.div
 						key={String(showFavorites)}

@@ -26,7 +26,7 @@ export function PasswordHistory({
 	};
 
 	return (
-		<div className="space-y-5 mt-8">
+		<div className="space-y-4 mt-8">
 			<AnimatePresence initial={false}>
 				{filteredPasswords.length === 0 ? (
 					<motion.div
@@ -68,11 +68,11 @@ export function PasswordHistory({
 							<div className="flex flex-col gap-1">
 								<div className="flex justify-between items-center">
 									<div className="flex items-center ">
-										<Clock className="h-3 w-3 " />
+										<Clock className="h-3 w-3 pr-1" />
 										<p className="text-xs text-gray-500">{entry.createdAt}</p>
 										{entry.isFavorite && (
 											<span
-												className={`ml-1 text-xs px-2 py-0.5 rounded-full ${
+												className={`ml-1 text-[0.65rem] md:text-xs px-1 md:px-2 py-0.5 rounded-full ${
 													isDarkMode
 														? "bg-amber-500/20 text-amber-300"
 														: "bg-amber-100 text-amber-700"
@@ -98,8 +98,8 @@ export function PasswordHistory({
 											<Copy className="h-4 w-4" />
 											{copiedId === entry.id && (
 												<motion.span
-													initial={{ opacity: 0, x:0 ,y:0}}
-													animate={{ opacity: 1, x: -35 , y:-15}}
+													initial={{ opacity: 0, x: 0, y: 0 }}
+													animate={{ opacity: 1, x: -35, y: -15 }}
 													exit={{ opacity: 0 }}
 													className={`absolute right-0 text-xs ${
 														isDarkMode ? "bg-gray-800" : "bg-gray-900"
