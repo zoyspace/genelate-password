@@ -19,7 +19,7 @@ export default function HistoryPage() {
 				initial={{ opacity: 0, y: 30 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6, ease: "easeOut" }}
-				className="w-full h-screen mb-40 max-w-md relative"
+				className="w-full h-full max-w-md relative"
 			>
 				<div
 					className={`min-h-screen w-full max-w-md p-6 rounded-2xl shadow-xl backdrop-blur-sm
