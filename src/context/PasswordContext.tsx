@@ -2,6 +2,12 @@
 
 import { createContext, useState, useContext, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
+import {
+	saveFavoritePassword,
+	fetchPasswordHistory,
+	removePassword,
+} from "../lib/supabase";
+import { useAuth } from "./AuthContext";
 
 // パスワード履歴のエントリー型
 export interface PasswordHistoryEntry {
@@ -29,6 +35,7 @@ interface PasswordContextType {
 	password: string;
 	setPassword: (password: string) => void;
 	passwordHistory: PasswordHistoryEntry[];
+	loadingHistory: boolean;
 
 	// 関数
 	generatePassword: (options?: {
@@ -41,6 +48,7 @@ interface PasswordContextType {
 	}) => void;
 	toggleFavorite: (id: string) => void;
 	removeFromHistory: (id: string) => void;
+	syncWithSupabase: () => Promise<void>;
 }
 // biome-ignore format: Preserve manual formatting
 const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
@@ -60,10 +68,29 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 	const [includeLowercase, setIncludeLowercase] = useState(true);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
 	const [password, setPassword] = useState<string>("");
-	const [passwordHistory, setPasswordHistory] = useState<PasswordHistoryEntry[]>([]);
+	const [passwordHistory, setPasswordHistory] = useState<
+		PasswordHistoryEntry[]
+	>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
+	const [loadingHistory, setLoadingHistory] = useState(false);
 
+	const { user, isLoggedIn } = useAuth();
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Supabaseとの同期
+	const syncWithSupabase = async () => {
+		if (!isLoggedIn || !user) return;
+
+		setLoadingHistory(true);
+		try {
+			const fetchedHistory = await fetchPasswordHistory(user.id);
+			setPasswordHistory(fetchedHistory);
+		} catch (error) {
+			console.error("Failed to sync with Supabase:", error);
+		} finally {
+			setLoadingHistory(false);
+		}
+	};
 
 	// パスワード履歴に保存
 	const savePasswordToHistory = (newPassword: string) => {
@@ -155,17 +182,37 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 		}, 200);
 	};
 
-	// お気に入り切り替え
-	const toggleFavorite = (id: string) => {
-		setPasswordHistory((prevHistory) =>
-			prevHistory.map((entry) =>
-				entry.id === id ? { ...entry, isFavorite: !entry.isFavorite } : entry,
-			),
-		);
+	// お気に入り切り替え - Supabaseと同期
+	const toggleFavorite = async (id: string) => {
+		setPasswordHistory((prevHistory) => {
+			const updatedHistory = prevHistory.map((entry) => {
+				if (entry.id === id) {
+					const updatedEntry = { ...entry, isFavorite: !entry.isFavorite };
+
+					// ログインしている場合はSupabaseに保存
+					if (isLoggedIn && user && updatedEntry.isFavorite) {
+						saveFavoritePassword({
+							...updatedEntry,
+							userId: user.id,
+						});
+					}
+
+					return updatedEntry;
+				}
+				return entry;
+			});
+
+			return updatedHistory;
+		});
 	};
 
-	// 履歴から削除
-	const removeFromHistory = (id: string) => {
+	// 履歴から削除 - Supabaseからも削除
+	const removeFromHistory = async (id: string) => {
+		// ログインしている場合はSupabaseからも削除
+		if (isLoggedIn) {
+			await removePassword(id);
+		}
+
 		setPasswordHistory((prevHistory) =>
 			prevHistory.filter((entry) => entry.id !== id),
 		);
@@ -174,17 +221,21 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 	// 初期化時にsessionStorageから状態を復元（一回のみ実行）
 	useEffect(() => {
 		if (typeof window !== "undefined" && !isInitialized) {
-			// この部分を完全に削除し、sessionStorageに依存しない初期化に置き換える
-
-			// 初期パスワード生成（必要な場合のみ）
+			// 初期パスワード生成
 			if (password === "") {
-				// 初回アクセス時の適切な初期値を設定
 				setPassword("Output Area");
 			}
 
 			setIsInitialized(true);
 		}
 	}, [isInitialized, password]);
+
+	// ログイン状態が変わったらSupabaseと同期
+	useEffect(() => {
+		if (isLoggedIn && user) {
+			syncWithSupabase();
+		}
+	}, [isLoggedIn, user]);
 
 	// コンポーネントのアンマウント時にタイマーをクリーンアップ
 	useEffect(() => {
@@ -213,9 +264,11 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 				password,
 				setPassword,
 				passwordHistory,
+				loadingHistory,
 				generatePassword,
 				toggleFavorite,
 				removeFromHistory,
+				syncWithSupabase,
 			}}
 		>
 			{children}
