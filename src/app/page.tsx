@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, History } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
@@ -69,13 +69,24 @@ export default function PasswordGeneratorPage() {
 				>
 					<div className="flex justify-between items-center mb-6">
 						<h1 className="text-3xl font-bold">Password Generator</h1>
-						<Button variant="ghost" size="icon" onClick={handleToggleDarkMode}>
-							{isDarkMode ? (
-								<Sun className="h-6 w-6" />
-							) : (
-								<Moon className="h-6 w-6" />
-							)}
-						</Button>
+						<div className="flex gap-2">
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={handleToggleDarkMode}
+							>
+								{isDarkMode ? (
+									<Sun className="h-6 w-6" />
+								) : (
+									<Moon className="h-6 w-6" />
+								)}
+							</Button>
+							<Link href="/history">
+								<Button variant="ghost" size="icon">
+									<History className="h-6 w-6" />
+								</Button>
+							</Link>
+						</div>
 					</div>
 					<div className="mb-4">
 						<PasswordDisplay
@@ -166,7 +177,6 @@ export default function PasswordGeneratorPage() {
 							</div>
 
 							<SymbolSelector
-								
 								selectedSymbols={customSymbols}
 								onSymbolsChange={(symbols) => {
 									setCustomSymbols(symbols);

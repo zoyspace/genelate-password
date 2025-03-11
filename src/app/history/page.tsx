@@ -50,7 +50,7 @@ export default function HistoryPage() {
 					</div>
 
 					<Button
-						className={`py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
+						className={` mb-3 px-6 rounded-lg font-medium transition-all duration-300 ${
 							showFavorites
 								? "bg-white text-primary shadow-sm border-b-2 border-primary hover:bg-slate-100"
 								: "bg-white  text-muted-foreground hover:bg-slate-100"

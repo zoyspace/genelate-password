@@ -26,7 +26,7 @@ export function PasswordHistory({
 	};
 
 	return (
-		<div className="space-y-4 mt-8">
+		<div className="space-y-4 ">
 			<AnimatePresence initial={false}>
 				{filteredPasswords.length === 0 ? (
 					<motion.div
@@ -70,17 +70,7 @@ export function PasswordHistory({
 									<div className="flex items-center ">
 										<Clock className="h-3 w-3 pr-1" />
 										<p className="text-xs text-gray-500">{entry.createdAt}</p>
-										{entry.isFavorite && (
-											<span
-												className={`ml-1 text-[0.65rem] md:text-xs px-1 md:px-2 py-0.5 rounded-full ${
-													isDarkMode
-														? "bg-amber-500/20 text-amber-300"
-														: "bg-amber-100 text-amber-700"
-												} font-medium`}
-											>
-												favorite
-											</span>
-										)}
+										
 									</div>
 									<div className="flex space-x-2">
 										<Button
@@ -101,9 +91,9 @@ export function PasswordHistory({
 													initial={{ opacity: 0, x: 0, y: 0 }}
 													animate={{ opacity: 1, x: -35, y: -15 }}
 													exit={{ opacity: 0 }}
-													className={`absolute right-0 text-xs ${
+													className={`absolute right-0 text-xs text-white px-2.5 py-1 rounded-lg shadow-md duration-100 ${
 														isDarkMode ? "bg-gray-800" : "bg-gray-900"
-													} text-white px-2.5 py-1 rounded-lg shadow-md`}
+													} `}
 												>
 													コピー完了
 												</motion.span>
