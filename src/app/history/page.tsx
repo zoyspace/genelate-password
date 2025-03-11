@@ -1,76 +1,127 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { PasswordHistory } from "@/components/PasswordHistory";
-import { motion } from "framer-motion";
-import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
+import { PasswordHistory } from "@/components/PasswordHistory";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { ArrowLeft, Clock, Heart } from "lucide-react";
+import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function HistoryPage() {
 	const { isDarkMode } = useTheme();
-	const [showFavorites, setShowFavorites] = useState(false);
+	const [activeTab, setActiveTab] = useState<"all" | "favorites">("all");
 
 	return (
-		<div
-			className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br ${isDarkMode ? "from-background/90 to-background/70" : "from-slate-50 to-blue-200"} transition-colors duration-500 p-4`}
-		>
-			<motion.div
-				initial={{ opacity: 0, y: 30 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.6, ease: "easeOut" }}
-				className="w-full h-full max-w-md relative"
-			>
+		<div className="min-h-screen bg-gradient-to-br transition-colors duration-500">
+			<div
+				className={`w-full h-full absolute inset-0 z-0 ${
+					isDarkMode
+						? "from-gray-900 to-gray-800"
+						: "from-blue-100 to-purple-100"
+				} transition-colors duration-500`}
+			/>
+
+			<div className="container max-w-4xl mx-auto py-8 px-4 relative z-10">
+				<div className="flex justify-between items-center mb-6">
+					<h1
+						className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}
+					>
+						パスワード履歴
+					</h1>
+					<Link href="/">
+						<Button variant="ghost">
+							<ArrowLeft className="mr-2 h-4 w-4" /> 戻る
+						</Button>
+					</Link>
+				</div>
+
+				{/* タブ切り替え */}
 				<div
-					className={`min-h-screen w-full max-w-md p-6 rounded-2xl shadow-xl backdrop-blur-sm
-            ${
-							isDarkMode
-								? "bg-card/90 border-border"
-								: "bg-white/90 border-border/50"
-						} 
-            text-foreground border transition-all duration-500`}
+					className={`flex space-x-2 mb-6 p-1 rounded-lg ${
+						isDarkMode ? "bg-gray-800" : "bg-gray-100"
+					}`}
 				>
-					<div className="flex justify-between items-center mb-6">
-						<motion.h1
-							className="text-3xl font-bold text-foreground"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ delay: 0.2, duration: 0.8 }}
-						>
-							Password History
-						</motion.h1>
-						<Link href="/">
-							<Button
-								variant="outline"
-								className="rounded-lg px-4 transition-all hover:bg-muted/50"
-							>
-								Back
-							</Button>
-						</Link>
-					</div>
+					<TabButton
+						isActive={activeTab === "all"}
+						onClick={() => setActiveTab("all")}
+						isDarkMode={isDarkMode}
+						icon={<Clock className="mr-2 h-4 w-4" />}
+						label="すべての履歴"
+					/>
+					<TabButton
+						isActive={activeTab === "favorites"}
+						onClick={() => setActiveTab("favorites")}
+						isDarkMode={isDarkMode}
+						icon={<Heart className="mr-2 h-4 w-4" />}
+						label="お気に入り"
+					/>
+				</div>
 
-					<Button
-						className={` mb-3 px-6 rounded-lg font-medium transition-all duration-300 ${
-							showFavorites
-								? "bg-white text-primary shadow-sm border-b-2 border-primary hover:bg-slate-100"
-								: "bg-white  text-muted-foreground hover:bg-slate-100"
-						}`}
-						onClick={() => setShowFavorites(!showFavorites)}
-					>
-						Favorites {showFavorites ? "ON" : "OFF"}
-					</Button>
-
+				{/* コンテンツ部分 */}
+				<div
+					className={`p-6 rounded-lg ${
+						isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+					} transition-colors duration-500 shadow-xl`}
+				>
 					<motion.div
-						key={String(showFavorites)}
-						initial={{ opacity: 0, x: 0 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ duration: 0.5 }}
-						className="relative"
+						key={activeTab}
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.3 }}
 					>
-						<PasswordHistory showOnlyFavorites={showFavorites} />
+						<PasswordHistory showOnlyFavorites={activeTab === "favorites"} />
 					</motion.div>
 				</div>
-			</motion.div>
+			</div>
 		</div>
+	);
+}
+
+// タブボタンコンポーネント
+function TabButton({
+	isActive,
+	onClick,
+	isDarkMode,
+	icon,
+	label,
+}: {
+	isActive: boolean;
+	onClick: () => void;
+	isDarkMode: boolean;
+	icon: React.ReactNode;
+	label: string;
+}) {
+	return (
+		<motion.button
+			onClick={onClick}
+			className={`flex-1 py-2 px-4 rounded-md flex items-center justify-center transition-colors relative ${
+				isActive
+					? isDarkMode
+						? "text-white"
+						: "text-gray-800"
+					: isDarkMode
+						? "text-gray-400 hover:text-gray-200"
+						: "text-gray-500 hover:text-gray-700"
+			}`}
+			whileHover={{ scale: 1.03 }}
+			whileTap={{ scale: 0.98 }}
+		>
+			{isActive && (
+				<motion.div
+					layoutId="tab-indicator"
+					className={`absolute inset-0 rounded-md ${
+						isDarkMode ? "bg-gray-700" : "bg-white"
+					}`}
+					initial={false}
+					transition={{ type: "spring", duration: 0.5 }}
+				/>
+			)}
+			<span className="relative flex items-center">
+				{icon}
+				{label}
+			</span>
+		</motion.button>
 	);
 }

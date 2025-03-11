@@ -144,8 +144,8 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 			const existingHistory = localStorage.getItem("passwordHistory");
 			let history = existingHistory ? JSON.parse(existingHistory) : [];
 
-			// 新しいパスワードを先頭に追加 (最大20個まで)
-			history = [historyItem, ...history.slice(0, 19)];
+			// 新しいパスワードを先頭に追加 (最大50個まで)
+			history = [historyItem, ...history.slice(0, 49)];
 
 			// 履歴を保存
 			localStorage.setItem("passwordHistory", JSON.stringify(history));
