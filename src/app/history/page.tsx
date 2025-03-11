@@ -22,23 +22,23 @@ export default function HistoryPage() {
 				} transition-colors duration-500`}
 			/>
 
-			<div className="container max-w-4xl mx-auto py-8 px-4 relative z-10">
+			<div className="  max-w-md mx-auto py-8 px-4 relative z-10">
 				<div className="flex justify-between items-center mb-6">
 					<h1
 						className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}
 					>
-						パスワード履歴
+						Password History
 					</h1>
 					<Link href="/">
 						<Button variant="ghost">
-							<ArrowLeft className="mr-2 h-4 w-4" /> 戻る
+							<ArrowLeft className="mr-2 h-4 w-4" /> Back
 						</Button>
 					</Link>
 				</div>
 
-				{/* タブ切り替え */}
+				{/* Tab switching */}
 				<div
-					className={`flex space-x-2 mb-6 p-1 rounded-lg ${
+					className={`flex space-x-2  p-2 rounded-lg ${
 						isDarkMode ? "bg-gray-800" : "bg-gray-100"
 					}`}
 				>
@@ -47,18 +47,18 @@ export default function HistoryPage() {
 						onClick={() => setActiveTab("all")}
 						isDarkMode={isDarkMode}
 						icon={<Clock className="mr-2 h-4 w-4" />}
-						label="すべての履歴"
+						label="All History"
 					/>
 					<TabButton
 						isActive={activeTab === "favorites"}
 						onClick={() => setActiveTab("favorites")}
 						isDarkMode={isDarkMode}
 						icon={<Heart className="mr-2 h-4 w-4" />}
-						label="お気に入り"
+						label="Favorites"
 					/>
 				</div>
 
-				{/* コンテンツ部分 */}
+				{/* Content section */}
 				<div
 					className={`p-6 rounded-lg ${
 						isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
@@ -79,7 +79,7 @@ export default function HistoryPage() {
 	);
 }
 
-// タブボタンコンポーネント
+// Tab button component
 function TabButton({
 	isActive,
 	onClick,
