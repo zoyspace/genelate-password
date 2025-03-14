@@ -23,8 +23,12 @@ const Login = () => {
 			} else {
 				await signIn(email, password);
 			}
-		} catch (err: any) {
-			setError(err.message || "認証中にエラーが発生しました");
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || "認証中にエラーが発生しました");
+			} else {
+				setError("認証中にエラーが発生しました");
+			}
 		} finally {
 			setLoading(false);
 		}

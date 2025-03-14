@@ -1,23 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
+import type { PasswordHistoryEntry } from "@/context/PasswordContext";
 
 // 環境変数から取得することをお勧めします
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL ;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ;
+if (!supabaseUrl || !supabaseAnonKey) throw new Error('Supabase URL and anon key must be provided.');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL and anon key must be provided.');
+type SupabasePasswordHistoryEntry = PasswordHistoryEntry & {
+    userId: string;
 }
+
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // お気に入りパスワードをSupabaseに保存
-export async function saveFavoritePassword(passwordEntry: {
-    id: string;
-    password: string;
-    createdAt: string;
-    isFavorite: boolean;
-    userId: string;
-}) {
+export async function saveFavoritePassword(passwordEntry: SupabasePasswordHistoryEntry) {
     const { data, error } = await supabase
         .from('passwords')
         .upsert({

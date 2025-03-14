@@ -6,7 +6,7 @@ import { RefreshCw, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/context/ThemeContext"
 
-interface PasswordDisplayProps {
+type PasswordDisplayProps = {
   password: string
   generatePass: (options?: { 
     _includeUppercase?: boolean; 

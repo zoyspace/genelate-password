@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 // biome-ignore format:
 const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
 
-interface SymbolSelectorProps {
+type SymbolSelectorProps = {
 	selectedSymbols: string[];
 	onSymbolsChange: (symbols: string[]) => void;
 	disabled: boolean;
