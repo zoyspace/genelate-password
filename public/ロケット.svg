@@ -1,0 +1,41 @@
+<!-- filepath: /Users/m1mac/dev/web/react/pass/src/components/Rocket.svg -->
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- ロケット本体 -->
+  <path
+    d="M50 10C40 25 40 40 40 60L50 70L60 60C60 40 60 25 50 10Z"
+    fill="#f44336"
+    stroke="#b71c1c"
+    stroke-width="2"
+  />
+  
+  <!-- ロケットの窓 -->
+  <circle cx="50" cy="40" r="5" fill="#ffeb3b" />
+  
+  <!-- ロケットの翼 -->
+  <path
+    d="M40 60L30 70L40 70L50 60Z"
+    fill="#9e9e9e"
+    stroke="#424242"
+    stroke-width="2"
+  />
+  <path
+    d="M60 60L70 70L60 70L50 60Z"
+    fill="#9e9e9e"
+    stroke="#424242"
+    stroke-width="2"
+  />
+  
+  <!-- ロケットの炎 -->
+  <path
+    d="M45 70L50 90L55 70"
+    fill="#ff9800"
+    stroke="#e65100"
+    stroke-width="2"
+  />
+  <path
+    d="M47.5 70L50 85L52.5 70"
+    fill="#ffeb3b"
+    stroke="#fbc02d"
+    stroke-width="1"
+  />
+</svg>

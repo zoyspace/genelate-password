@@ -2,17 +2,12 @@
 
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 
 export default function AuthButton() {
 	const { user, isLoggedIn, signOut } = useAuth();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const router = useRouter();
-
-	// ログインページへの遷移
-	const handleLoginClick = () => {
-		router.push("/login");
-	};
 
 	// ログアウト処理
 	const handleLogout = async () => {
@@ -36,20 +31,7 @@ export default function AuthButton() {
 					<span className="mr-2">
 						{user.email?.split("@")[0] || "ユーザー"}
 					</span>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<title>Dropdown Icon</title>
-						<path d="M6 9l6 6 6-6" />
-					</svg>
+					<ChevronDown size={16} />
 				</button>
 
 				{isDropdownOpen && (
@@ -71,12 +53,11 @@ export default function AuthButton() {
 	}
 
 	return (
-		<button
-			type="button"
-			onClick={handleLoginClick}
+		<Link
+			href="/login"
 			className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
 		>
 			ログイン
-		</button>
+		</Link>
 	);
 }

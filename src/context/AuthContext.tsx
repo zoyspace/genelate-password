@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		// 2秒（2000ミリ秒）以内に再アクセスしようとした場合
 		if (lastAccessTimeRef.current > 0 && timeSinceLastAccess < 2000) {
 			throw new Error(
-				"アクセス頻度が高すぎます。少なくとも1秒間待ってから再試行してください。",
+				"アクセス頻度が高すぎます。少なくとも2秒間待ってから再試行してください。",
 			);
 		}
 
@@ -44,9 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const checkSession = async () => {
 			try {
 				checkAccessRate(); // アクセス頻度チェック
+				
 				const {
 					data: { session },
 				} = await supabase.auth.getSession();
+
 				setUser(session?.user || null);
 				setIsLoggedIn(!!session);
 				setLoading(false);
