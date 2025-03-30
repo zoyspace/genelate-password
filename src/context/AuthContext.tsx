@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const checkSession = async () => {
 			try {
 				checkAccessRate(); // アクセス頻度チェック
-				
+
 				const {
 					data: { session },
 				} = await supabase.auth.getSession();
