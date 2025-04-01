@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useRef, useEffect } from "react";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import {
 	saveFavoritePassword,
 	fetchPasswordHistory,
@@ -60,7 +60,7 @@ const PasswordContext = createContext<PasswordContextType | undefined>(
 );
 
 // プロバイダーコンポーネント
-export function PasswordProvider({ children }: { children: ReactNode }) {
+export function PasswordProvider({ children }: { children: ReactElement }) {
 	const [length, setLength] = useState(16);
 	const [includeUppercase, setIncludeUppercase] = useState(true);
 	const [includeNumbers, setIncludeNumbers] = useState(true);
@@ -84,7 +84,13 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 		setLoadingHistory(true);
 		try {
 			const fetchedHistory = await fetchPasswordHistory(user.id);
-			setPasswordHistory(fetchedHistory);
+			console.log("fetchedHistory",fetchedHistory)
+			console.log("before passwordHistory",passwordHistory)
+			const combinedHistory = [...fetchedHistory, ...passwordHistory];
+			const uniqueByIdHistory = Array.from(
+				new Map(combinedHistory.map(obj => [obj.id, obj])).values()
+			  );
+			setPasswordHistory(uniqueByIdHistory);
 		} catch (error) {
 			console.error("Failed to sync with Supabase:", error);
 		} finally {
