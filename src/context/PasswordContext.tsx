@@ -84,12 +84,12 @@ export function PasswordProvider({ children }: { children: ReactElement }) {
 		setLoadingHistory(true);
 		try {
 			const fetchedHistory = await fetchPasswordHistory(user.id);
-			console.log("fetchedHistory",fetchedHistory)
-			console.log("before passwordHistory",passwordHistory)
+			console.log("fetchedHistory", fetchedHistory);
+			console.log("before passwordHistory", passwordHistory);
 			const combinedHistory = [...fetchedHistory, ...passwordHistory];
 			const uniqueByIdHistory = Array.from(
-				new Map(combinedHistory.map(obj => [obj.id, obj])).values()
-			  );
+				new Map(combinedHistory.map((obj) => [obj.id, obj])).values(),
+			);
 			setPasswordHistory(uniqueByIdHistory);
 		} catch (error) {
 			console.error("Failed to sync with Supabase:", error);
@@ -100,10 +100,20 @@ export function PasswordProvider({ children }: { children: ReactElement }) {
 
 	// パスワード履歴に保存
 	const savePasswordToHistory = (newPassword: string) => {
-		const newEntry = {
+		const now = new Date();
+		const yyyy = now.getFullYear();
+		const MM = String(now.getMonth() + 1).padStart(2, "0"); // 月（0ベースなので+1）
+		const dd = String(now.getDate()).padStart(2, "0");
+		const hh = String(now.getHours()).padStart(2, "0");
+		const mm = String(now.getMinutes()).padStart(2, "0");
+		const ss = String(now.getSeconds()).padStart(2, "0");
+		const SSS = String(now.getMilliseconds()).padStart(3, "0"); // ミリ秒（3桁）
+
+		const newEntry: PasswordHistoryEntry = {
 			id: crypto.randomUUID(),
+			// id: `${yyyy}-${MM}-${dd}-${hh}-${mm}-${ss}-${SSS}`,
 			password: newPassword,
-			createdAt: new Date().toLocaleString(),
+			createdAt: now.toLocaleString(),
 			isFavorite: false,
 		};
 
@@ -188,15 +198,18 @@ export function PasswordProvider({ children }: { children: ReactElement }) {
 		}, 200);
 	};
 
-	// お気に入り切り替え - Supabaseと同期
+	// お気に入り切り替え - ログイン時のみSupabaseと同期
 	const toggleFavorite = async (id: string) => {
+		// ログインしていない場合は何もしない
+		if (!isLoggedIn || !user) return;
+
 		setPasswordHistory((prevHistory) => {
 			const updatedHistory = prevHistory.map((entry) => {
 				if (entry.id === id) {
 					const updatedEntry = { ...entry, isFavorite: !entry.isFavorite };
 
 					// ログインしている場合はSupabaseに保存
-					if (isLoggedIn && user && updatedEntry.isFavorite) {
+					if (updatedEntry.isFavorite) {
 						saveFavoritePassword({
 							...updatedEntry,
 							userId: user.id,
