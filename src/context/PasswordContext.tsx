@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useRef, useEffect } from "react";
-import type { ReactElement } from "react";
+import type { ReactNode } from "react";
 import {
 	saveFavoritePassword,
 	fetchPasswordHistory,
@@ -60,7 +60,7 @@ const PasswordContext = createContext<PasswordContextType | undefined>(
 );
 
 // プロバイダーコンポーネント
-export function PasswordProvider({ children }: { children: ReactElement }) {
+export function PasswordProvider({ children }: { children: ReactNode }) {
 	const [length, setLength] = useState(16);
 	const [includeUppercase, setIncludeUppercase] = useState(true);
 	const [includeNumbers, setIncludeNumbers] = useState(true);
