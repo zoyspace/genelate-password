@@ -3,13 +3,13 @@
 import { createContext, useState, useContext, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { supabase } from "../lib/supabase";
-import type { User, AuthResponse } from "@supabase/supabase-js";
+import type { User, Session, WeakPassword } from "@supabase/supabase-js";
 
 type AuthContextType = {
 	user: User | null;
 	loading: boolean;
-	signIn: (email: string, password: string) => Promise<AuthResponse>;
-	signUp: (email: string, password: string) => Promise<AuthResponse>;
+	signIn: (email: string, password: string) => Promise<{ user: User; session: Session; weakPassword?: WeakPassword | undefined; }>;
+	signUp: (email: string, password: string) => Promise<{ user: User | null; session: Session | null; }> ;
 	signOut: () => Promise<void>;
 	isLoggedIn: boolean;
 };
