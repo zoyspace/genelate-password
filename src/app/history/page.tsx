@@ -17,8 +17,6 @@ export default function HistoryPage() {
 	const {
 		passwordHistory,
 		loadingHistory,
-		removeFromHistory,
-		toggleFavorite,
 		syncWithSupabase,
 	} = usePassword();
 	const { isLoggedIn, user } = useAuth();

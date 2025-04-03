@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useRef, useEffect } from "react";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import {
 	saveFavoritePassword,
 	fetchPasswordHistory,
@@ -101,17 +101,9 @@ export function PasswordProvider({ children }: { children: ReactElement }) {
 	// パスワード履歴に保存
 	const savePasswordToHistory = (newPassword: string) => {
 		const now = new Date();
-		const yyyy = now.getFullYear();
-		const MM = String(now.getMonth() + 1).padStart(2, "0"); // 月（0ベースなので+1）
-		const dd = String(now.getDate()).padStart(2, "0");
-		const hh = String(now.getHours()).padStart(2, "0");
-		const mm = String(now.getMinutes()).padStart(2, "0");
-		const ss = String(now.getSeconds()).padStart(2, "0");
-		const SSS = String(now.getMilliseconds()).padStart(3, "0"); // ミリ秒（3桁）
-
+		
 		const newEntry: PasswordHistoryEntry = {
 			id: crypto.randomUUID(),
-			// id: `${yyyy}-${MM}-${dd}-${hh}-${mm}-${ss}-${SSS}`,
 			password: newPassword,
 			createdAt: now.toLocaleString(),
 			isFavorite: false,
