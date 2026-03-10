@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
 import { PasswordHistory } from "@/components/PasswordHistory";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Heart } from "lucide-react";
