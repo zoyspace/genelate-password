@@ -1,40 +1,21 @@
 "use client";
 
 import { PasswordHistory } from "@/components/PasswordHistory";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Heart } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { usePassword } from "@/context/PasswordContext";
-import { useAuth } from "@/context/AuthContext";
-// import AuthButton from "@/components/AuthButton";
 
 export default function HistoryPage() {
 	const { isDarkMode } = useTheme();
 	const [activeTab, setActiveTab] = useState<"all" | "favorites">("all");
 	const {
 		passwordHistory,
-		loadingHistory,
-		syncWithSupabase,
 	} = usePassword();
-	const { isLoggedIn, user } = useAuth();
-	const syncedRef = useRef(false);
 
-	// ログイン状態に応じてSupabaseからデータを同期（重複実行を防止）
-	useEffect(() => {
-		// ログイン状態になって、まだ同期していない場合のみ実行
-		if (isLoggedIn && user && !syncedRef.current) {
-			syncedRef.current = true;
-			syncWithSupabase();
-		}
-
-		// ログアウト時にフラグをリセット
-		if (!isLoggedIn) {
-			syncedRef.current = false;
-		}
-	}, [isLoggedIn]);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br transition-colors duration-500">
@@ -54,7 +35,6 @@ export default function HistoryPage() {
 						パスワード履歴
 					</h1>
 					<div className="flex items-center gap-2">
-						<AuthButton />
 						<Link href="/">
 							<Button variant="ghost" className="flex items-center">
 								<ArrowLeft className="mr-2 h-4 w-4" /> 戻る
@@ -63,25 +43,6 @@ export default function HistoryPage() {
 					</div>
 				</div>
 
-				{isLoggedIn ? (
-					<div
-						className={`p-4 mb-6 rounded-lg ${isDarkMode ? "bg-green-800 text-green-100" : "bg-green-100 text-green-700"} border-l-4 border-green-500`}
-					>
-						<p className="font-bold">ログイン済み</p>
-						<p>
-							お気に入りのパスワードはクラウドに保存され、複数のデバイスで共有できます。
-						</p>
-					</div>
-				) : (
-					<div
-						className={`p-4 mb-6 rounded-lg ${isDarkMode ? "bg-blue-800 text-blue-100" : "bg-blue-100 text-blue-700"} border-l-4 border-blue-500`}
-					>
-						<p className="font-bold">ヒント</p>
-						<p>
-							ログインすると、お気に入りのパスワードをクラウドに保存し、複数のデバイスで共有できます。
-						</p>
-					</div>
-				)}
 
 				{/* Tab switching */}
 				<div
@@ -121,13 +82,7 @@ export default function HistoryPage() {
 						isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
 					} transition-colors duration-500 shadow-xl`}
 				>
-					{loadingHistory && (
-						<div className="flex justify-center my-8">
-							<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500" />
-						</div>
-					)}
-
-					{!loadingHistory && passwordHistory.length === 0 ? (
+					{passwordHistory.length === 0 ? (
 						<div
 							className={`text-center py-12 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
 						>

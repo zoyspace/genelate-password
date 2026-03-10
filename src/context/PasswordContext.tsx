@@ -2,12 +2,10 @@
 
 import { createContext, useState, useContext, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
-import {
-	saveFavoritePassword,
-	fetchPasswordHistory,
-	removePassword,
-} from "../lib/supabase";
-import { useAuth } from "./AuthContext";
+
+// biome-ignore format: Preserve manual formatting
+const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
+];
 
 // パスワード履歴のエントリー型
 export interface PasswordHistoryEntry {
@@ -35,7 +33,6 @@ interface PasswordContextType {
 	password: string;
 	setPassword: (password: string) => void;
 	passwordHistory: PasswordHistoryEntry[];
-	loadingHistory: boolean;
 
 	// 関数
 	generatePassword: (options?: {
@@ -48,18 +45,12 @@ interface PasswordContextType {
 	}) => void;
 	toggleFavorite: (id: string) => void;
 	removeFromHistory: (id: string) => void;
-	syncWithSupabase: () => Promise<void>;
 }
-// biome-ignore format: Preserve manual formatting
-const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
-];
 
-// コンテキストの作成
 const PasswordContext = createContext<PasswordContextType | undefined>(
 	undefined,
 );
 
-// プロバイダーコンポーネント
 export function PasswordProvider({ children }: { children: ReactNode }) {
 	const [length, setLength] = useState(16);
 	const [includeUppercase, setIncludeUppercase] = useState(true);
@@ -72,31 +63,8 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 		PasswordHistoryEntry[]
 	>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
-	const [loadingHistory, setLoadingHistory] = useState(false);
 
-	const { user, isLoggedIn } = useAuth();
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-	// Supabaseとの同期
-	const syncWithSupabase = async () => {
-		if (!isLoggedIn || !user) return;
-
-		setLoadingHistory(true);
-		try {
-			const fetchedHistory = await fetchPasswordHistory(user.id);
-			console.log("fetchedHistory", fetchedHistory);
-			console.log("before passwordHistory", passwordHistory);
-			const combinedHistory = [...fetchedHistory, ...passwordHistory];
-			const uniqueByIdHistory = Array.from(
-				new Map(combinedHistory.map((obj) => [obj.id, obj])).values(),
-			);
-			setPasswordHistory(uniqueByIdHistory);
-		} catch (error) {
-			console.error("Failed to sync with Supabase:", error);
-		} finally {
-			setLoadingHistory(false);
-		}
-	};
 
 	// パスワード履歴に保存
 	const savePasswordToHistory = (newPassword: string) => {
@@ -190,25 +158,12 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 		}, 200);
 	};
 
-	// お気に入り切り替え - ログイン時のみSupabaseと同期
+	// お気に入り切り替え
 	const toggleFavorite = async (id: string) => {
-		// ログインしていない場合は何もしない
-		if (!isLoggedIn || !user) return;
-
 		setPasswordHistory((prevHistory) => {
 			const updatedHistory = prevHistory.map((entry) => {
 				if (entry.id === id) {
-					const updatedEntry = { ...entry, isFavorite: !entry.isFavorite };
-
-					// ログインしている場合はSupabaseに保存
-					if (updatedEntry.isFavorite) {
-						saveFavoritePassword({
-							...updatedEntry,
-							userId: user.id,
-						});
-					}
-
-					return updatedEntry;
+					return { ...entry, isFavorite: !entry.isFavorite };
 				}
 				return entry;
 			});
@@ -217,13 +172,8 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
-	// 履歴から削除 - Supabaseからも削除
+	// 履歴から削除
 	const removeFromHistory = async (id: string) => {
-		// ログインしている場合はSupabaseからも削除
-		if (isLoggedIn) {
-			await removePassword(id);
-		}
-
 		setPasswordHistory((prevHistory) =>
 			prevHistory.filter((entry) => entry.id !== id),
 		);
@@ -240,13 +190,6 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 			setIsInitialized(true);
 		}
 	}, [isInitialized, password]);
-
-	// ログイン状態が変わったらSupabaseと同期
-	useEffect(() => {
-		if (isLoggedIn && user) {
-			syncWithSupabase();
-		}
-	}, [isLoggedIn, user]);
 
 	// コンポーネントのアンマウント時にタイマーをクリーンアップ
 	useEffect(() => {
@@ -275,11 +218,9 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 				password,
 				setPassword,
 				passwordHistory,
-				loadingHistory,
 				generatePassword,
 				toggleFavorite,
 				removeFromHistory,
-				syncWithSupabase,
 			}}
 		>
 			{children}
