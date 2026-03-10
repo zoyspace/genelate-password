@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { usePassword } from "@/context/PasswordContext";
 import { useAuth } from "@/context/AuthContext";
-import AuthButton from "@/components/AuthButton";
+// import AuthButton from "@/components/AuthButton";
 
 export default function HistoryPage() {
 	const { isDarkMode } = useTheme();
