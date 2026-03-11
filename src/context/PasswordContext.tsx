@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useState, useContext, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 // biome-ignore format: Preserve manual formatting
 const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
@@ -69,7 +69,7 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 	// パスワード履歴に保存
 	const savePasswordToHistory = (newPassword: string) => {
 		const now = new Date();
-		
+
 		const newEntry: PasswordHistoryEntry = {
 			id: crypto.randomUUID(),
 			password: newPassword,

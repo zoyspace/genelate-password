@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
 // biome-ignore format: preserve array layout
 const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
@@ -11,7 +11,7 @@ type SymbolSelectorProps = {
 	selectedSymbols: string[];
 	onSymbolsChange: (symbols: string[]) => void;
 	disabled: boolean;
-}
+};
 
 export function SymbolSelector({
 	selectedSymbols,
@@ -20,7 +20,7 @@ export function SymbolSelector({
 }: SymbolSelectorProps) {
 	const handleSymbolToggle = (symbol: string) => {
 		if (disabled) return;
-		
+
 		const newSymbols = selectedSymbols.includes(symbol)
 			? selectedSymbols.filter((s) => s !== symbol)
 			: [...selectedSymbols, symbol];

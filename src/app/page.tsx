@@ -1,16 +1,16 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { History, Moon, Sun } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun, History } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import PasswordDisplay from "@/components/PasswordDisplay";
 import { SymbolSelector } from "@/components/SymbolSelector";
-import Link from "next/link";
-import { useTheme } from "@/context/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { usePassword } from "@/context/PasswordContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function PasswordGeneratorPage() {
 	const {
@@ -34,7 +34,7 @@ export default function PasswordGeneratorPage() {
 	// const [isClient, setIsClient] = useState(false);
 
 	// 初回マウント時だけ実行したいため、エラー表示を無視する。
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: 初回マウント時のみ実行したいため
 	useEffect(() => {
 		// 初回アクセス時にパスワードがセットされていない場合は生成
 		if (!password || password === "Output Area") {
@@ -54,7 +54,7 @@ export default function PasswordGeneratorPage() {
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br transition-colors duration-500 overflow-hidden">
+		<div className="min-h-screen flex items-center justify-center bg-linear-to-br transition-colors duration-500 overflow-hidden">
 			<div
 				className={`w-full h-full absolute inset-0 z-0 ${isDarkMode ? "from-gray-900 to-gray-800" : "from-blue-100 to-purple-100"} transition-colors duration-500`}
 			/>

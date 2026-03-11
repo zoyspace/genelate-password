@@ -1,20 +1,21 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Heart, Trash2, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import { Clock, Copy, Heart, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { Button } from "@/components/ui/button";
 import { usePassword } from "@/context/PasswordContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export function PasswordHistory({
 	showOnlyFavorites = false,
-}: { showOnlyFavorites?: boolean }) {
+}: {
+	showOnlyFavorites?: boolean;
+}) {
 	const { isDarkMode } = useTheme();
 	const { passwordHistory, toggleFavorite, removeFromHistory } = usePassword();
 
 	const [copiedId, setCopiedId] = useState<string | null>(null);
-
 
 	// フィルタリングされたパスワード履歴
 	const filteredPasswords = showOnlyFavorites
@@ -59,8 +60,8 @@ export function PasswordHistory({
 							transition={{ type: "spring", stiffness: 300, damping: 30 }}
 							className={`p-5 rounded-lg ${
 								isDarkMode
-									? "bg-gradient-to-br from-gray-700 to-gray-800 shadow-lg shadow-gray-900/30"
-									: "bg-gradient-to-br from-white to-gray-50 shadow-md shadow-gray-200/60"
+									? "bg-linear-to-br from-gray-700 to-gray-800 shadow-lg shadow-gray-900/30"
+									: "bg-linear-to-br from-white to-gray-50 shadow-md shadow-gray-200/60"
 							} relative overflow-hidden border ${
 								entry.isFavorite
 									? isDarkMode

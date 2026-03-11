@@ -1,21 +1,18 @@
 "use client";
 
-import { PasswordHistory } from "@/components/PasswordHistory";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Heart } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "@/context/ThemeContext";
+import { useState } from "react";
+import { PasswordHistory } from "@/components/PasswordHistory";
+import { Button } from "@/components/ui/button";
 import { usePassword } from "@/context/PasswordContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function HistoryPage() {
 	const { isDarkMode } = useTheme();
 	const [activeTab, setActiveTab] = useState<"all" | "favorites">("all");
-	const {
-		passwordHistory,
-	} = usePassword();
-
+	const { passwordHistory } = usePassword();
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br transition-colors duration-500">
@@ -42,7 +39,6 @@ export default function HistoryPage() {
 						</Link>
 					</div>
 				</div>
-
 
 				{/* Tab switching */}
 				<div
