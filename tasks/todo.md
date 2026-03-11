@@ -1,5 +1,7 @@
-# Fix Tailwind-specific syntax disabled warning
+# Task: Replace `flex-grow` with `grow`
 
-- [x] Create `.vscode/settings.json` to disable default CSS validation (which conflicts with Tailwind v4).
-- [x] Create `biome.json` to enable `tailwindDirectives`, fixing Biome's integration with Tailwind v4.
-- [x] Verify the configuration clears the error.
+- [x] Explain why `flex-grow` can be `grow`.
+- [x] Replace `flex-grow` with `grow` in `src/components/PasswordDisplay.tsx`.
+- [x] Search for other occurrences of `flex-grow` in the codebase.
+- [x] Replace other occurrences if found.
+- [x] Verify changes.

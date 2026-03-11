@@ -55,7 +55,7 @@ export default function PasswordDisplay({
       } : {}}
       transition={{ duration: 0.6 }}
     >
-      <div className="password-text flex-grow mr-4 min-h-16 flex items-center overflow-hidden" style={{ perspective: 1000 }}>
+      <div className="password-text grow mr-4 min-h-16 flex items-center overflow-hidden" style={{ perspective: 1000 }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={displayedPassword}
