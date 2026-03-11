@@ -5,17 +5,11 @@ import { Copy, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
+import type { GeneratePasswordOptions } from "@/lib/constants";
 
 type PasswordDisplayProps = {
 	password: string;
-	generatePass: (options?: {
-		_includeUppercase?: boolean;
-		_includeNumbers?: boolean;
-		_includeSymbols?: boolean;
-		_customSymbols?: string[];
-		_length?: number;
-		_includeLowercase?: boolean;
-	}) => void;
+	generatePass: (options?: GeneratePasswordOptions) => void;
 };
 
 export default function PasswordDisplay({
@@ -35,7 +29,7 @@ export default function PasswordDisplay({
 			setTimeout(() => {
 				setIsCopied(false);
 				setIsIconClicked(false);
-			}, 1000); // 1秒後にリセット
+			}, 1000);
 		}
 	};
 

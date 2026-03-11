@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-// biome-ignore format: preserve array layout
-const DEFAULT_SYMBOLS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', ':', ';', '<', '>', ',', '.', '?', '/'];
+import { DEFAULT_SYMBOLS } from "@/lib/constants";
 
 type SymbolSelectorProps = {
 	selectedSymbols: string[];
@@ -19,25 +19,13 @@ export function SymbolSelector({
 	disabled,
 }: SymbolSelectorProps) {
 	const handleSymbolToggle = (symbol: string) => {
-		if (disabled) return;
-
 		const newSymbols = selectedSymbols.includes(symbol)
 			? selectedSymbols.filter((s) => s !== symbol)
 			: [...selectedSymbols, symbol];
 		onSymbolsChange(newSymbols);
 	};
 
-	const handleSelectAll = () => {
-		if (disabled) return;
-		onSymbolsChange([...DEFAULT_SYMBOLS]);
-	};
-
-	const handleDeselectAll = () => {
-		if (disabled) return;
-		onSymbolsChange([]);
-	};
-
-	const allSelected = DEFAULT_SYMBOLS.length === selectedSymbols.length;
+	const allSelected = DEFAULT_SYMBOLS.every((s) => selectedSymbols.includes(s));
 	const noneSelected = selectedSymbols.length === 0;
 
 	return (
@@ -46,23 +34,21 @@ export function SymbolSelector({
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={handleSelectAll}
+					onClick={() => onSymbolsChange([...DEFAULT_SYMBOLS])}
 					disabled={disabled || allSelected}
-					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
 					All Select
 				</Button>
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={handleDeselectAll}
+					onClick={() => onSymbolsChange([])}
 					disabled={disabled || noneSelected}
-					className={disabled ? "opacity-50 cursor-not-allowed" : ""}
 				>
 					None Select
 				</Button>
 			</div>
-			<div className={`grid grid-cols-5 gap-4 ${disabled ? "opacity-50" : ""}`}>
+			<div className={cn("grid grid-cols-5 gap-4", disabled && "opacity-50")}>
 				{DEFAULT_SYMBOLS.map((symbol) => (
 					<div key={symbol} className="flex items-center space-x-2">
 						<Checkbox
@@ -73,7 +59,7 @@ export function SymbolSelector({
 						/>
 						<Label
 							htmlFor={`symbol-${symbol}`}
-							className={disabled ? "cursor-not-allowed" : ""}
+							className={cn(disabled && "cursor-not-allowed")}
 						>
 							{symbol}
 						</Label>

@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from "next-themes";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type ThemeContextType = {
@@ -11,39 +11,35 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-	const [isDarkMode, setIsDarkMode] = useState(false);
+	return (
+		<NextThemeProvider attribute="class" defaultTheme="system" enableSystem>
+			<ThemeInternalProvider>{children}</ThemeInternalProvider>
+		</NextThemeProvider>
+	);
+}
 
+function ThemeInternalProvider({ children }: { children: React.ReactNode }) {
+	const { resolvedTheme, setTheme } = useNextTheme();
+	const [mounted, setMounted] = useState(false);
+
+	// クライアントサイドでのマウントを確認するまでレンダリングを調整（FoUC対策）
 	useEffect(() => {
-		try {
-			// sessionStorageからテーマ設定を読み込む
-			const storedIsDarkMode = sessionStorage.getItem("isDarkMode");
-			if (storedIsDarkMode !== null) {
-				setIsDarkMode(JSON.parse(storedIsDarkMode));
-			}
-		} catch (error) {
-			console.error("Error accessing storage:", error);
-		}
+		setMounted(true);
 	}, []);
 
-	useEffect(() => {
-		// DOMクラスの更新
-		document.documentElement.classList.toggle("dark", isDarkMode);
-
-		// ストレージに保存
-		try {
-			sessionStorage.setItem("isDarkMode", JSON.stringify(isDarkMode));
-		} catch (error) {
-			console.error("Error saving dark mode preference:", error);
-		}
-	}, [isDarkMode]);
+	const isDarkMode = resolvedTheme === "dark";
 
 	const toggleDarkMode = () => {
-		setIsDarkMode((prev) => !prev);
+		setTheme(isDarkMode ? "light" : "dark");
 	};
 
+	// マウント前はハイドレーションエラーを避けるためにnullまたはプレースホルダーを返すことも検討できますが、
+	// ここではコンテキストを提供し続けるためにマウント状態に関わらず値を渡します。
 	return (
 		<ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-			{children}
+			<div style={{ visibility: mounted ? "visible" : "hidden" }}>
+				{children}
+			</div>
 		</ThemeContext.Provider>
 	);
 }

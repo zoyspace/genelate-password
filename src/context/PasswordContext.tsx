@@ -3,46 +3,41 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-// biome-ignore format: Preserve manual formatting
-const DEFAULT_SYMBOLS = ["!","@","#","$","%","^","&","*","(",")","-","_","+","=","{","}","[","]","|",":",";","<",">",",",".","?","/",
-];
+import {
+	DEFAULT_SYMBOLS,
+	DEBOUNCE_MS,
+	INITIAL_PASSWORD_PLACEHOLDER,
+	type GeneratePasswordOptions,
+	type PasswordHistoryEntry,
+} from "@/lib/constants";
+import { buildCharset, generateSecurePassword } from "@/lib/generatePassword";
+import { usePasswordHistory } from "@/hooks/usePasswordHistory";
 
-// パスワード履歴のエントリー型
-export interface PasswordHistoryEntry {
-	id: string;
-	password: string;
-	createdAt: string;
-	isFavorite: boolean;
-}
+// --- Context の型 ---
 
-// コンテキストの型定義
 interface PasswordContextType {
-	// 状態
+	// パスワード生成設定
 	length: number;
 	setLength: (length: number) => void;
 	includeUppercase: boolean;
-	setIncludeUppercase: (include: boolean) => void;
+	setIncludeUppercase: (v: boolean) => void;
 	includeNumbers: boolean;
-	setIncludeNumbers: (include: boolean) => void;
+	setIncludeNumbers: (v: boolean) => void;
 	includeSymbols: boolean;
-	setIncludeSymbols: (include: boolean) => void;
+	setIncludeSymbols: (v: boolean) => void;
 	includeLowercase: boolean;
-	setIncludeLowercase: (include: boolean) => void;
+	setIncludeLowercase: (v: boolean) => void;
 	customSymbols: string[];
 	setCustomSymbols: (symbols: string[]) => void;
+
+	// パスワード
 	password: string;
-	setPassword: (password: string) => void;
+
+	// 履歴
 	passwordHistory: PasswordHistoryEntry[];
 
-	// 関数
-	generatePassword: (options?: {
-		_includeUppercase?: boolean;
-		_includeNumbers?: boolean;
-		_includeSymbols?: boolean;
-		_customSymbols?: string[];
-		_length?: number;
-		_includeLowercase?: boolean;
-	}) => void;
+	// アクション
+	generatePassword: (options?: GeneratePasswordOptions) => void;
 	toggleFavorite: (id: string) => void;
 	removeFromHistory: (id: string) => void;
 }
@@ -51,152 +46,56 @@ const PasswordContext = createContext<PasswordContextType | undefined>(
 	undefined,
 );
 
+// --- Provider ---
+
 export function PasswordProvider({ children }: { children: ReactNode }) {
+	// パスワード生成設定
 	const [length, setLength] = useState(16);
 	const [includeUppercase, setIncludeUppercase] = useState(true);
 	const [includeNumbers, setIncludeNumbers] = useState(true);
 	const [includeSymbols, setIncludeSymbols] = useState(false);
 	const [includeLowercase, setIncludeLowercase] = useState(true);
 	const [customSymbols, setCustomSymbols] = useState<string[]>(DEFAULT_SYMBOLS);
-	const [password, setPassword] = useState<string>("");
-	const [passwordHistory, setPasswordHistory] = useState<
-		PasswordHistoryEntry[]
-	>([]);
-	const [isInitialized, setIsInitialized] = useState(false);
 
+	// パスワード表示
+	const [password, setPassword] = useState(INITIAL_PASSWORD_PLACEHOLDER);
+
+	// 履歴（カスタムフック）
+	const { passwordHistory, addToHistory, toggleFavorite, removeFromHistory } =
+		usePasswordHistory();
+
+	// debounce 用タイマー
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-	// パスワード履歴に保存
-	const savePasswordToHistory = (newPassword: string) => {
-		const now = new Date();
-
-		const newEntry: PasswordHistoryEntry = {
-			id: crypto.randomUUID(),
-			password: newPassword,
-			createdAt: now.toLocaleString(),
-			isFavorite: false,
+	const generatePassword = (options: GeneratePasswordOptions = {}) => {
+		const resolved = {
+			includeLowercase: options.includeLowercase ?? includeLowercase,
+			includeUppercase: options.includeUppercase ?? includeUppercase,
+			includeNumbers: options.includeNumbers ?? includeNumbers,
+			includeSymbols: options.includeSymbols ?? includeSymbols,
+			customSymbols: options.customSymbols ?? customSymbols,
+			length: options.length ?? length,
 		};
 
-		setPasswordHistory((prevHistory) => {
-			const updatedHistory = [newEntry, ...prevHistory];
-			return updatedHistory.slice(0, 10); // 最大10件まで保持
-		});
-	};
-
-	// パスワード生成関数
-	const generatePassword = (
-		options: {
-			_includeUppercase?: boolean;
-			_includeNumbers?: boolean;
-			_includeSymbols?: boolean;
-			_customSymbols?: string[];
-			_length?: number;
-			_includeLowercase?: boolean;
-		} = {},
-	) => {
-		const {
-			_includeUppercase = includeUppercase,
-			_includeNumbers = includeNumbers,
-			_includeSymbols = includeSymbols,
-			_customSymbols = customSymbols,
-			_length = length,
-			_includeLowercase = includeLowercase,
-		} = options;
-
-		// 以前のタイマーをキャンセル
+		// 前回のタイマーをキャンセル
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
-			timerRef.current = null;
 		}
 
-		// パスワード生成処理を非同期化
 		timerRef.current = setTimeout(() => {
-			let charset = "";
-			if (_includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
-			if (_includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			if (_includeNumbers) charset += "0123456789";
-			if (_includeSymbols && _customSymbols.length > 0) {
-				charset += _customSymbols.join("");
-			}
-
-			// 有効な文字セットがあるか確認
-			if (charset.length === 0) {
-				const paddingChar = "*".repeat(_length);
-				setPassword(paddingChar);
-				return;
-			}
-
-			let newPassword = "";
-			for (let i = 0; i < _length; i++) {
-				newPassword += charset.charAt(
-					Math.floor(Math.random() * charset.length),
-				);
-			}
+			const charset = buildCharset(resolved);
+			const newPassword = generateSecurePassword(charset, resolved.length);
 
 			setPassword(newPassword);
-			savePasswordToHistory(newPassword);
+			addToHistory(newPassword);
 			timerRef.current = null;
-
-			// パスワード生成後、履歴に追加
-			const historyItem = {
-				password: newPassword,
-				timestamp: new Date().toISOString(),
-			};
-
-			// 既存の履歴を取得
-			const existingHistory = localStorage.getItem("passwordHistory");
-			let history = existingHistory ? JSON.parse(existingHistory) : [];
-
-			// 新しいパスワードを先頭に追加 (最大50個まで)
-			history = [historyItem, ...history.slice(0, 49)];
-
-			// 履歴を保存
-			localStorage.setItem("passwordHistory", JSON.stringify(history));
-
-			setPassword(newPassword);
-			return newPassword;
-		}, 200);
+		}, DEBOUNCE_MS);
 	};
 
-	// お気に入り切り替え
-	const toggleFavorite = async (id: string) => {
-		setPasswordHistory((prevHistory) => {
-			const updatedHistory = prevHistory.map((entry) => {
-				if (entry.id === id) {
-					return { ...entry, isFavorite: !entry.isFavorite };
-				}
-				return entry;
-			});
-
-			return updatedHistory;
-		});
-	};
-
-	// 履歴から削除
-	const removeFromHistory = async (id: string) => {
-		setPasswordHistory((prevHistory) =>
-			prevHistory.filter((entry) => entry.id !== id),
-		);
-	};
-
-	// 初期化時にsessionStorageから状態を復元（一回のみ実行）
-	useEffect(() => {
-		if (typeof window !== "undefined" && !isInitialized) {
-			// 初期パスワード生成
-			if (password === "") {
-				setPassword("Output Area");
-			}
-
-			setIsInitialized(true);
-		}
-	}, [isInitialized, password]);
-
-	// コンポーネントのアンマウント時にタイマーをクリーンアップ
+	// アンマウント時のクリーンアップ
 	useEffect(() => {
 		return () => {
-			if (timerRef.current) {
-				clearTimeout(timerRef.current);
-			}
+			if (timerRef.current) clearTimeout(timerRef.current);
 		};
 	}, []);
 
@@ -216,7 +115,6 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 				customSymbols,
 				setCustomSymbols,
 				password,
-				setPassword,
 				passwordHistory,
 				generatePassword,
 				toggleFavorite,
@@ -228,7 +126,8 @@ export function PasswordProvider({ children }: { children: ReactNode }) {
 	);
 }
 
-// カスタムフック
+// --- カスタムフック ---
+
 export function usePassword() {
 	const context = useContext(PasswordContext);
 	if (context === undefined) {

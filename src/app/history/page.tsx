@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Heart } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { PasswordHistory } from "@/components/PasswordHistory";
+import { TabButton } from "@/components/TabButton";
 import { Button } from "@/components/ui/button";
 import { usePassword } from "@/context/PasswordContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -15,7 +16,7 @@ export default function HistoryPage() {
 	const { passwordHistory } = usePassword();
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br transition-colors duration-500">
+		<div className="min-h-screen bg-linear-to-br transition-colors duration-500">
 			<div
 				className={`w-full h-full absolute inset-0 z-0 ${
 					isDarkMode
@@ -25,22 +26,21 @@ export default function HistoryPage() {
 			/>
 
 			<div className="container mx-auto max-w-md py-8 px-4 relative z-10">
+				{/* ヘッダー */}
 				<div className="flex justify-between items-center mb-6">
 					<h1
 						className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}
 					>
 						パスワード履歴
 					</h1>
-					<div className="flex items-center gap-2">
-						<Link href="/">
-							<Button variant="ghost" className="flex items-center">
-								<ArrowLeft className="mr-2 h-4 w-4" /> 戻る
-							</Button>
-						</Link>
-					</div>
+					<Link href="/">
+						<Button variant="ghost" className="flex items-center">
+							<ArrowLeft className="mr-2 h-4 w-4" /> 戻る
+						</Button>
+					</Link>
 				</div>
 
-				{/* Tab switching */}
+				{/* タブ切り替え */}
 				<div
 					className={`flex space-x-2 p-2 rounded-lg ${
 						isDarkMode ? "bg-gray-800" : "bg-gray-100"
@@ -49,21 +49,17 @@ export default function HistoryPage() {
 					<TabButton
 						isActive={activeTab === "all"}
 						onClick={() => setActiveTab("all")}
-						isDarkMode={isDarkMode}
 						icon={<Clock className="mr-2 h-4 w-4" />}
 						label="全履歴"
 					/>
 					<TabButton
 						isActive={activeTab === "favorites"}
 						onClick={() => setActiveTab("favorites")}
-						isDarkMode={isDarkMode}
 						icon={
 							<Heart
 								className={`mr-2 h-4 w-4 ${
-									activeTab === "favorites"
-										? isDarkMode
-											? ""
-											: "fill-amber-500 text-amber-500 "
+									activeTab === "favorites" && !isDarkMode
+										? "fill-amber-500 text-amber-500"
 										: ""
 								}`}
 							/>
@@ -72,10 +68,12 @@ export default function HistoryPage() {
 					/>
 				</div>
 
-				{/* Content section */}
+				{/* コンテンツ */}
 				<div
 					className={`p-6 rounded-lg ${
-						isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+						isDarkMode
+							? "bg-gray-800 text-white"
+							: "bg-white text-gray-800"
 					} transition-colors duration-500 shadow-xl`}
 				>
 					{passwordHistory.length === 0 ? (
@@ -101,58 +99,13 @@ export default function HistoryPage() {
 							exit={{ opacity: 0 }}
 							transition={{ duration: 0.3 }}
 						>
-							<PasswordHistory showOnlyFavorites={activeTab === "favorites"} />
+							<PasswordHistory
+								showOnlyFavorites={activeTab === "favorites"}
+							/>
 						</motion.div>
 					)}
 				</div>
 			</div>
 		</div>
-	);
-}
-
-// Tab button component
-function TabButton({
-	isActive,
-	onClick,
-	isDarkMode,
-	icon,
-	label,
-}: {
-	isActive: boolean;
-	onClick: () => void;
-	isDarkMode: boolean;
-	icon: React.ReactNode;
-	label: string;
-}) {
-	return (
-		<motion.button
-			onClick={onClick}
-			className={`flex-1 py-2 px-4 rounded-md flex items-center justify-center transition-colors relative ${
-				isActive
-					? isDarkMode
-						? "text-white"
-						: "text-gray-800"
-					: isDarkMode
-						? "text-gray-400 hover:text-gray-200"
-						: "text-gray-500 hover:text-gray-700"
-			}`}
-			whileHover={{ scale: 1.03 }}
-			whileTap={{ scale: 0.98 }}
-		>
-			{isActive && (
-				<motion.div
-					layoutId="tab-indicator"
-					className={`absolute inset-0 rounded-md ${
-						isDarkMode ? "bg-gray-700" : "bg-white"
-					}`}
-					initial={false}
-					transition={{ type: "spring", duration: 0.5 }}
-				/>
-			)}
-			<span className="relative flex items-center">
-				{icon}
-				{label}
-			</span>
-		</motion.button>
 	);
 }
