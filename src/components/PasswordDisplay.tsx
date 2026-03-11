@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Copy, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/context/ThemeContext";
 import type { GeneratePasswordOptions } from "@/lib/constants";
 
 type PasswordDisplayProps = {
@@ -16,7 +15,6 @@ export default function PasswordDisplay({
 	password: displayedPassword,
 	generatePass,
 }: PasswordDisplayProps) {
-	const { isDarkMode } = useTheme();
 	const [isCopied, setIsCopied] = useState(false);
 	const [isIconClicked, setIsIconClicked] = useState(false);
 	const [isAnimating, setIsAnimating] = useState(false);
@@ -41,7 +39,7 @@ export default function PasswordDisplay({
 
 	return (
 		<motion.div
-			className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"} flex items-center justify-between overflow-visible relative min-h-[80px]`}
+			className="p-4 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-between overflow-visible relative min-h-[80px]"
 			animate={
 				isAnimating
 					? {
@@ -78,7 +76,7 @@ export default function PasswordDisplay({
 						onClick={handleGenerateClick}
 						className={`hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 ${isAnimating ? "pointer-events-none" : ""}`}
 					>
-						<RefreshCw className="h-4 w-4 group-hover:text-primary transition-colors duration-200" />
+						<RefreshCw className="h-4 w-4 transition-colors duration-200" />
 					</Button>
 				</motion.div>
 
@@ -97,7 +95,7 @@ export default function PasswordDisplay({
 						className="hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
 					>
 						<Copy
-							className={`h-4 w-4 group-hover:text-primary transition-colors duration-200 ${isCopied ? "text-green-500" : ""} ${isIconClicked ? "stroke-[3px]" : "stroke-[2px]"}`}
+							className={`h-4 w-4 transition-colors duration-200 ${isCopied ? "text-green-500" : ""} ${isIconClicked ? "stroke-[3px]" : "stroke-[2px]"}`}
 						/>
 					</Button>
 					<AnimatePresence>
@@ -106,7 +104,7 @@ export default function PasswordDisplay({
 								initial={{ opacity: 0, y: 5 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0 }}
-								className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded whitespace-nowrap"
+								className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded whitespace-nowrap"
 							>
 								Copied!
 							</motion.span>

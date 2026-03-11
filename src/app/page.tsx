@@ -32,7 +32,7 @@ export default function PasswordGeneratorPage() {
 		generatePassword,
 	} = usePassword();
 
-	const { isDarkMode, toggleDarkMode } = useTheme();
+	const { isDarkMode, toggleDarkMode, mounted } = useTheme();
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: 初回マウント時のみ実行したいため
 	useEffect(() => {
@@ -42,18 +42,16 @@ export default function PasswordGeneratorPage() {
 	}, []);
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-linear-to-br transition-colors duration-500 overflow-hidden">
-			<div
-				className={`w-full h-full absolute inset-0 z-0 ${isDarkMode ? "from-gray-900 to-gray-800" : "from-blue-100 to-purple-100"} transition-colors duration-500`}
-			/>
+		<div className="min-h-screen flex items-center justify-center transition-colors duration-500 overflow-hidden">
+			<div className="w-full h-full absolute inset-0 z-0 bg-linear-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" />
 			<AnimatePresence mode="wait">
 				<motion.div
-					key={isDarkMode ? "dark" : "light"}
+					key="card"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
 					transition={{ duration: 0.3 }}
-					className={`w-full max-w-md p-8 rounded-xl shadow-2xl relative z-10 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"} transition-colors duration-5000`}
+					className="w-full max-w-md p-8 rounded-xl shadow-2xl relative z-10 bg-white text-gray-800 dark:bg-gray-800 dark:text-white transition-colors duration-300"
 				>
 					{/* ヘッダー */}
 					<div className="flex justify-between items-center mb-6">
@@ -64,10 +62,14 @@ export default function PasswordGeneratorPage() {
 								size="icon"
 								onClick={toggleDarkMode}
 							>
-								{isDarkMode ? (
-									<Sun className="h-6 w-6" />
+								{mounted ? (
+									isDarkMode ? (
+										<Sun className="h-6 w-6" />
+									) : (
+										<Moon className="h-6 w-6" />
+									)
 								) : (
-									<Moon className="h-6 w-6" />
+									<div className="h-6 w-6" /> // プレースホルダー
 								)}
 							</Button>
 							<Link href="/history">
@@ -143,7 +145,7 @@ export default function PasswordGeneratorPage() {
 							className={`${includeSymbols ? "border-4 p-2" : "border p-[11px]"} rounded-2xl mt-4`}
 						>
 							<div
-								className={`flex flex-col mb-1 ml-1 ${!includeSymbols ? "opacity-50" : ""} transition-opacity duration-300`}
+								className={`flex flex-col mb-1 ml-1 transition-opacity duration-300 ${!includeSymbols ? "opacity-50" : ""}`}
 							>
 								<label
 									htmlFor="include-symbols-switch"

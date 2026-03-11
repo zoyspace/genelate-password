@@ -1,53 +1,31 @@
 "use client";
 
-import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from "next-themes";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+	ThemeProvider as NextThemeProvider,
+	useTheme as useNextTheme,
+} from "next-themes";
 
-type ThemeContextType = {
-	isDarkMode: boolean;
-	toggleDarkMode: () => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
+/** dark: バリアント対応のテーマプロバイダー。next-themes で html.class を管理する。 */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
 	return (
 		<NextThemeProvider attribute="class" defaultTheme="system" enableSystem>
-			<ThemeInternalProvider>{children}</ThemeInternalProvider>
+			{children}
 		</NextThemeProvider>
 	);
 }
 
-function ThemeInternalProvider({ children }: { children: React.ReactNode }) {
+/** テーマの切り替え用フック。isDarkMode / toggleDarkMode を提供する。 */
+export function useTheme() {
 	const { resolvedTheme, setTheme } = useNextTheme();
 	const [mounted, setMounted] = useState(false);
 
-	// クライアントサイドでのマウントを確認するまでレンダリングを調整（FoUC対策）
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	const isDarkMode = resolvedTheme === "dark";
+	const isDarkMode = mounted && resolvedTheme === "dark";
+	const toggleDarkMode = () => setTheme(isDarkMode ? "light" : "dark");
 
-	const toggleDarkMode = () => {
-		setTheme(isDarkMode ? "light" : "dark");
-	};
-
-	// マウント前はハイドレーションエラーを避けるためにnullまたはプレースホルダーを返すことも検討できますが、
-	// ここではコンテキストを提供し続けるためにマウント状態に関わらず値を渡します。
-	return (
-		<ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-			<div style={{ visibility: mounted ? "visible" : "hidden" }}>
-				{children}
-			</div>
-		</ThemeContext.Provider>
-	);
-}
-
-export function useTheme() {
-	const context = useContext(ThemeContext);
-	if (context === undefined) {
-		throw new Error("useTheme must be used within a ThemeProvider");
-	}
-	return context;
+	return { isDarkMode, toggleDarkMode, mounted };
 }
