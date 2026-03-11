@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { PasswordProvider } from "../context/PasswordContext";
 
 export const metadata: Metadata = {
-	title: "v0 App",
-	description: "Created with v0",
+	title: "generate password",
+	description: "generate random word"	,
 };
 
 export default function RootLayout({
