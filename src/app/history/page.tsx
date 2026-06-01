@@ -23,7 +23,7 @@ export default function HistoryPage() {
 				{/* ヘッダー */}
 				<div className="flex justify-between items-center mb-6">
 					<h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-						パスワード履歴
+						History
 					</h1>
 					<Link href="/">
 						<Button variant="ghost" className="flex items-center">
